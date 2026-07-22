@@ -58,18 +58,110 @@
   --md-code-fg-color: #B8D98C;
 }
 
-/* Featured image at top of landing pages */
-img[alt$="featured"] {
+/* Featured image: sits above the Entities block on landing pages. The
+   landscape PNG fills the content column on wide screens; the portrait PNG
+   (swapped in by <picture> below 768px) is capped so it never dominates a
+   phone screen. */
+picture.featured {
+  display: block;
+  margin: 1.5rem 0;
+}
+picture.featured > img {
   width: 100%;
   max-height: 320px;
   object-fit: cover;
   border-radius: 8px;
-  margin-bottom: 1rem;
+}
+
+/* On narrow screens the portrait variant is served; let it be a little taller
+   but still capped so it doesn't push the Entities table below the fold. */
+@media (max-width: 768px) {
+  picture.featured > img {
+    max-height: 420px;
+  }
 }
 
 /* Ensure the deprecated badge renders distinctly */
 code, .md-typeset code {
   border-radius: 4px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Landing-page sidebar card: Project facts + Contents counts rendered into
+   the LEFT sidebar by landing-sidebar.js (below the site nav).
+   ──────────────────────────────────────────────────────────────────────── */
+.lp-meta {
+  margin: 1.5rem 0 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(135, 185, 70, 0.4); /* primary green at ~40% */
+  border-radius: 6px;
+  background: var(--md-default-bg-color);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.lp-meta__title {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--md-primary-fg-color, #5e8a2e);
+  margin-bottom: 0.5rem;
+  word-break: break-word;
+}
+
+/* Facts: label / value pairs stacked. */
+.lp-meta__facts {
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: grid;
+  gap: 0.2rem;
+}
+.lp-meta__fact {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0;
+}
+.lp-meta__fact dt {
+  font-weight: 600;
+  color: var(--md-default-fg-color);
+  opacity: 0.7;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.lp-meta__fact dd {
+  margin: 0 0 0.25rem;
+  color: var(--md-default-fg-color);
+  word-break: break-word;
+}
+
+.lp-meta__heading {
+  font-weight: 700;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--md-default-fg-color);
+  opacity: 0.7;
+  margin: 0.5rem 0 0.25rem;
+}
+
+.lp-meta__contents {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.7rem;
+}
+.lp-meta__contents th,
+.lp-meta__contents td {
+  padding: 0.15rem 0.25rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(135, 185, 70, 0.2);
+}
+.lp-meta__contents th {
+  font-weight: 600;
+  opacity: 0.7;
+}
+.lp-meta__contents td:last-child {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────

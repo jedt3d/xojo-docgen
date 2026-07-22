@@ -48,6 +48,7 @@ extra_javascript:
   - javascripts/prism.js
   - javascripts/xojo.prism.js
   - javascripts/source-modal.js
+  - javascripts/landing-sidebar.js
 
 markdown_extensions:
   - admonition

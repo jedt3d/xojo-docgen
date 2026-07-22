@@ -21,3 +21,9 @@ var xojoPrismJS string
 
 //go:embed assets/source-modal.js
 var sourceModalJS string
+
+// landing-sidebar.js injects the Project/Contents card into the left sidebar
+// of the landing page (only where #lp-meta is present).
+//
+//go:embed assets/landing-sidebar.js
+var landingSidebarJS string

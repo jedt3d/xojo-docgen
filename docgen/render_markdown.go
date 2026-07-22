@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -15,10 +16,18 @@ func renderMarkdown(p *Project, outRoot string, lm *LinkMap, includePrivate bool
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
 		return err
 	}
-	// Featured image.
-	featuredPath := filepath.Join(outDir, "assets", "featured.png")
+	// Featured images: a landscape placeholder (1200x630) for desktop/wide
+	// screens and a portrait placeholder (800x1000) for phones and portrait
+	// tablets. The landing page swaps between them with a <picture> element.
+	// Users replace these files with real artwork later.
+	assetsDir := filepath.Join(outDir, "assets")
+	featuredPath := filepath.Join(assetsDir, "featured.png")
 	if err := generateFeaturedPNG(featuredPath); err != nil {
 		warnf("%s: featured image: %v", p.Slug, err)
+	}
+	featuredPortraitPath := filepath.Join(assetsDir, "featured_portrait.png")
+	if err := generateFeaturedPortraitPNG(featuredPortraitPath); err != nil {
+		warnf("%s: featured portrait image: %v", p.Slug, err)
 	}
 
 	// Shared green theme stylesheet (so each per-project site is self-contained).
@@ -37,9 +46,10 @@ func renderMarkdown(p *Project, outRoot string, lm *LinkMap, includePrivate bool
 		return err
 	}
 	for name, content := range map[string]string{
-		"prism.js":        prismCoreJS,
-		"xojo.prism.js":   xojoPrismJS,
-		"source-modal.js": sourceModalJS,
+		"prism.js":           prismCoreJS,
+		"xojo.prism.js":      xojoPrismJS,
+		"source-modal.js":    sourceModalJS,
+		"landing-sidebar.js": landingSidebarJS,
 	} {
 		if err := os.WriteFile(filepath.Join(jsDir, name), []byte(content), 0o644); err != nil {
 			warnf("%s: js %s: %v", p.Slug, name, err)
@@ -117,57 +127,24 @@ func buildInternalTypeMap(p *Project) map[string]string {
 
 func renderLandingPage(p *Project, outDir string, lm *LinkMap) error {
 	var b strings.Builder
-	b.WriteString("<!-- Featured image: replace assets/featured.png (1200x630 recommended) -->\n")
-	b.WriteString(fmt.Sprintf("![%s — featured](assets/featured.png)\n\n", p.Name))
 	b.WriteString(fmt.Sprintf("# %s\n\n", p.Name))
 
-	// Project facts from the manifest config.
-	b.WriteString("## Project\n\n")
-	writeKV(&b, "Type", p.Type)
-	writeKV(&b, "RBProjectVersion", p.RBVersion)
-	if v, ok := p.Config["OSXBundleID"]; ok {
-		writeKV(&b, "Bundle ID", v)
+	// Project facts + Contents counts are rendered into a card in the LEFT
+	// sidebar by landing-sidebar.js (not in the center column). We emit them
+	// here as a hidden JSON payload so the script has the data to clone.
+	if metaJSON, err := landingMetaJSON(p); err == nil {
+		fmt.Fprintf(&b, "<script type=\"application/json\" id=\"lp-meta\">%s</script>\n\n", metaJSON)
 	}
-	if v, ok := p.Config["MajorVersion"]; ok {
-		ver := v
-		if mn, ok := p.Config["MinorVersion"]; ok {
-			ver += "." + mn
-		}
-		if sv, ok := p.Config["SubVersion"]; ok {
-			ver += "." + sv
-		}
-		writeKV(&b, "Version", ver)
-	}
-	if v, ok := p.Config["DefaultWindow"]; ok {
-		writeKV(&b, "Default window", v)
-	}
-	if v, ok := p.Config["DefaultScreen"]; ok {
-		writeKV(&b, "Default screen", v)
-	}
-	if v, ok := p.Config["DefaultMobileView"]; ok {
-		writeKV(&b, "Default mobile view", v)
-	}
-	if v, ok := p.Config["AppMenuBar"]; ok {
-		writeKV(&b, "App menu bar", v)
-	}
-	if v, ok := p.Config["WebDebugPort"]; ok {
-		writeKV(&b, "Web debug port", v)
-	}
-	if v, ok := p.Config["IsWebProject"]; ok {
-		writeKV(&b, "Is web project", v)
-	}
-	b.WriteString("\n")
 
-	// Item counts summary.
-	b.WriteString("## Contents\n\n")
-	counts := countByKind(p)
-	if len(counts) > 0 {
-		b.WriteString("| Kind | Count |\n|---|---:|\n")
-		for _, k := range sortedKindKeys(counts) {
-			fmt.Fprintf(&b, "| %s | %d |\n", k, counts[k])
-		}
-		b.WriteString("\n")
-	}
+	// Featured image: a responsive <picture> sits directly above the Entities
+	// block. Landscape (featured.png) for wide screens, portrait
+	// (featured_portrait.png) for phones/portrait tablets via art direction.
+	// Users replace the PNGs in assets/ with real artwork.
+	b.WriteString("<!-- Featured image: replace assets/featured.png (landscape, 1200x630) and assets/featured_portrait.png (portrait, 800x1000). -->\n")
+	fmt.Fprintf(&b, "<picture class=\"featured\">\n")
+	fmt.Fprintf(&b, "  <source media=\"(max-width: 768px)\" srcset=\"assets/featured_portrait.png\">\n")
+	fmt.Fprintf(&b, "  <img src=\"assets/featured.png\" alt=\"%s — featured\">\n", htmlEscape(p.Name))
+	b.WriteString("</picture>\n\n")
 
 	// Entity table.
 	b.WriteString("## Entities\n\n")
@@ -186,6 +163,99 @@ func renderLandingPage(p *Project, outDir string, lm *LinkMap) error {
 	}
 
 	return os.WriteFile(filepath.Join(outDir, "index.md"), []byte(b.String()), 0o644)
+}
+
+// landingMeta is the payload emitted as <script id="lp-meta"> on the landing
+// page and consumed by landing-sidebar.js to build the sidebar card.
+type landingMeta struct {
+	Title    string            `json:"title"`
+	Facts    []landingMetaFact `json:"facts"`
+	Contents []landingMetaKind `json:"contents"`
+}
+
+type landingMetaFact struct {
+	Label string `json:"label"`
+	Value string `json:"value"`
+}
+
+type landingMetaKind struct {
+	Kind  string `json:"kind"`
+	Count int    `json:"count"`
+}
+
+// landingMetaJSON builds the sidebar payload for the landing page and returns
+// it JSON-encoded (safe to embed in a <script type="application/json"> block).
+func landingMetaJSON(p *Project) (string, error) {
+	meta := landingMeta{Title: p.Name, Facts: projectFacts(p)}
+	counts := countByKind(p)
+	for _, k := range sortedKindKeys(counts) {
+		meta.Contents = append(meta.Contents, landingMetaKind{Kind: k, Count: counts[k]})
+	}
+	out, err := jsonMarshalHTMLSafe(meta)
+	if err != nil {
+		return "", err
+	}
+	return out, nil
+}
+
+// projectFacts collects the project's key/value metadata in display order.
+func projectFacts(p *Project) []landingMetaFact {
+	var facts []landingMetaFact
+	add := func(label, v string) {
+		if v != "" {
+			facts = append(facts, landingMetaFact{Label: label, Value: v})
+		}
+	}
+	add("Type", p.Type)
+	add("RBProjectVersion", p.RBVersion)
+	if v, ok := p.Config["OSXBundleID"]; ok {
+		add("Bundle ID", v)
+	}
+	if v, ok := p.Config["MajorVersion"]; ok {
+		ver := v
+		if mn, ok := p.Config["MinorVersion"]; ok {
+			ver += "." + mn
+		}
+		if sv, ok := p.Config["SubVersion"]; ok {
+			ver += "." + sv
+		}
+		add("Version", ver)
+	}
+	if v, ok := p.Config["DefaultWindow"]; ok {
+		add("Default window", v)
+	}
+	if v, ok := p.Config["DefaultScreen"]; ok {
+		add("Default screen", v)
+	}
+	if v, ok := p.Config["DefaultMobileView"]; ok {
+		add("Default mobile view", v)
+	}
+	if v, ok := p.Config["AppMenuBar"]; ok {
+		add("App menu bar", v)
+	}
+	if v, ok := p.Config["WebDebugPort"]; ok {
+		add("Web debug port", v)
+	}
+	if v, ok := p.Config["IsWebProject"]; ok {
+		add("Is web project", v)
+	}
+	return facts
+}
+
+// jsonMarshalHTMLSafe marshals v to compact JSON and escapes <, >, & so the
+// result can be embedded inside <script type="application/json"> without
+// terminating the tag early on content like "<".
+func jsonMarshalHTMLSafe(v any) (string, error) {
+	out, err := json.Marshal(v)
+	if err != nil {
+		return "", err
+	}
+	r := strings.NewReplacer(
+		"<", "\\u003c",
+		">", "\\u003e",
+		"&", "\\u0026",
+	)
+	return r.Replace(string(out)), nil
 }
 
 type landingRow struct {
@@ -248,13 +318,6 @@ func kindSubdir(k ContainerKind) string {
 		return "toolbars"
 	}
 	return "misc"
-}
-
-func writeKV(b *strings.Builder, k, v string) {
-	if v == "" {
-		return
-	}
-	fmt.Fprintf(b, "- **%s:** %s\n", k, v)
 }
 
 func countByKind(p *Project) map[string]int {

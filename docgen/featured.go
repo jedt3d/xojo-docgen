@@ -15,15 +15,29 @@ const (
 	xojoGreenLight2 = "#D4E8BF" // pale tint
 )
 
-// generateFeaturedPNG writes a 1200x630 green banner PNG to assetsPath.
+// generateFeaturedPNG writes a 1200x630 landscape green banner PNG to assetsPath.
 // Uses only stdlib (image, image/png). The banner is a vertical gradient from
 // the base green to the darker accent, with a lighter band — a clean,
 // intentional placeholder.
 func generateFeaturedPNG(assetsPath string) error {
+	return drawFeaturedBanner(assetsPath, 1200, 630)
+}
+
+// generateFeaturedPortraitPNG writes an 800x1000 portrait green banner PNG to
+// assetsPath — a smaller, taller variant for phones and portrait tablets. The
+// landing page uses <picture> art direction to swap it in below ~768px width.
+// Same gradient recipe as the landscape banner, just a 4:5 aspect ratio.
+func generateFeaturedPortraitPNG(assetsPath string) error {
+	return drawFeaturedBanner(assetsPath, 800, 1000)
+}
+
+// drawFeaturedBanner is the shared gradient renderer for both orientations.
+// The banner is a vertical gradient from the base green to the darker accent,
+// with a lighter band — a clean, intentional placeholder.
+func drawFeaturedBanner(assetsPath string, w, h int) error {
 	if err := os.MkdirAll(filepath.Dir(assetsPath), 0o755); err != nil {
 		return err
 	}
-	const w, h = 1200, 630
 	img := image.NewRGBA(image.Rect(0, 0, w, h))
 	base := parseHex(xojoGreen)
 	dark := parseHex(xojoGreenDark)
