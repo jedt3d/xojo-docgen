@@ -1,0 +1,357 @@
+/* Xojo green theme for MkDocs Material.
+   Brand color: #87B946 (RGB 135, 185, 70).
+   Derived ramp:
+     primary  #87B946   (header, sidebar brand)
+     accent   #5E8A2E   (links, hover — darker for WCAG-AA contrast on white)
+     tint     #A8D073   (lighter accents)
+     pale     #D4E8BF   (admonition backgrounds, code block tints)
+   Dark mode lifts the green toward #9DC863 for readability.
+*/
+
+:root {
+  /* Primary brand green */
+  --md-primary-fg-color: #87B946;
+  --md-primary-fg-color--light: #A8D073;
+  --md-primary-fg-color--dark: #5E8A2E;
+  --md-primary-bg-color: #ffffff;
+  --md-primary-bg-color--light: #ffffff;
+
+  /* Accent (links, hover) — darker green for contrast */
+  --md-accent-fg-color: #5E8A2E;
+  --md-accent-fg-color--transparent: rgba(94, 138, 46, 0.1);
+  --md-accent-bg-color: #5E8A2E;
+  --md-accent-bg-color--light: #87B946;
+
+  /* Default link color uses accent for visibility */
+  --md-typeset-a-color: #5E8A2E;
+}
+
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: #87B946;
+  --md-primary-fg-color--light: #A8D073;
+  --md-primary-fg-color--dark: #5E8A2E;
+  --md-accent-fg-color: #5E8A2E;
+  --md-typeset-a-color: #5E8A2E;
+
+  /* Subtle green tint for code block backgrounds */
+  --md-code-bg-color: #f4f9ec;
+  --md-code-fg-color: #3d5e1f;
+
+  /* Green-tinted admonition defaults */
+  --md-admonition-bg-color: #f4f9ec;
+}
+
+[data-md-color-scheme="slate"] {
+  /* Dark mode: lift green toward a lighter, more readable shade */
+  --md-primary-fg-color: #6FA835;
+  --md-primary-fg-color--light: #87B946;
+  --md-primary-fg-color--dark: #5E8A2E;
+  --md-default-bg-color: #1a1e15;
+  --md-default-bg-color--light: #1a1e15;
+  --md-default-bg-color--lighter: #14180f;
+
+  --md-accent-fg-color: #9DC863;
+  --md-accent-fg-color--transparent: rgba(157, 200, 99, 0.12);
+  --md-typeset-a-color: #9DC863;
+
+  --md-code-bg-color: #14180f;
+  --md-code-fg-color: #B8D98C;
+}
+
+/* Featured image at top of landing pages */
+img[alt$="featured"] {
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+/* Ensure the deprecated badge renders distinctly */
+code, .md-typeset code {
+  border-radius: 4px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Source blocks: neutral body + Xojo green frame (border = primary at 50%).
+   The source sits visually "a little less important" than the signature.
+   ──────────────────────────────────────────────────────────────────────── */
+.md-content details.source {
+  background: transparent; /* inherit the page's white/content background */
+  border: none;
+  border-left: 3px solid rgba(135, 185, 70, 0.5); /* primary green at 50% */
+  border-radius: 4px;
+  margin: 0.5em 0 1.5em;
+  overflow: hidden;
+}
+/* Kill Material's default disclosure triangles / pseudo-elements on summary */
+.md-content details.source > summary,
+.md-content details.source > summary::before,
+.md-content details.source > summary::after {
+  list-style: none !important;
+}
+.md-content details.source > summary::-webkit-details-marker,
+.md-content details.source > summary::marker { display: none !important; }
+.md-content details.source > summary::before,
+.md-content details.source > summary::after {
+  display: none !important;
+  content: none !important;
+}
+.md-content details.source > summary {
+  color: #5E8A2E;
+  font-weight: 600;
+  font-size: 0.875rem; /* 14px — matches the code blocks */
+  padding: 0.5em 0.75em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: transparent !important; /* kill Material's blue hover bg (#448AFF1A) */
+}
+/* Material applies a blue accent background on summary:hover — override it so
+   the summary stays white (transparent) on hover/focus/open too. */
+.md-content details.source > summary:hover,
+.md-content details.source > summary:focus,
+.md-content details.source[open] > summary,
+.md-content details.source[open] > summary:hover {
+  background: transparent !important;
+  color: #5E8A2E;
+}
+.md-content details.source[open] > summary {
+  border-bottom: 1px solid #e0e0e0;
+}
+.md-content details.source > summary .source-expand {
+  background: rgba(135, 185, 70, 0.15);
+  border: 1px solid rgba(135, 185, 70, 0.4);
+  border-radius: 4px;
+  color: #5E8A2E;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 2px 7px;
+  margin-left: 0.75em;
+  flex-shrink: 0;
+}
+.md-content details.source > summary .source-expand:hover {
+  background: rgba(135, 185, 70, 0.3);
+}
+/* Reset ALL Material default borders/shadows on pre/code inside source blocks
+   AND inside the internal-members <details> blocks (properties/constants).
+   Material's default <pre> has a blue-ish border that leaks through; we want
+   clean code blocks everywhere in our content. */
+.md-content details pre,
+.md-content details code,
+.md-content details pre code,
+.md-content details.source pre,
+.md-content details.source code,
+.md-content details.source pre code {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  margin: 0;
+  background: transparent;
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.5;
+}
+.md-content details pre,
+.md-content details.source pre {
+  padding: 0.75em 1em;
+  overflow-x: auto;
+}
+
+/* Internal-members <details> (the collapsible Private section): style it to
+   match details.source — transparent background, green left border, clean
+   summary. Overrides Material's default <details> blue border + grey bg. */
+.md-content details.internal {
+  background: transparent;
+  border: none;
+  border-left: 3px solid rgba(135, 185, 70, 0.5);
+  border-radius: 4px;
+  margin: 0.5em 0 1.5em;
+  overflow: hidden;
+}
+.md-content details.internal > summary,
+.md-content details.internal > summary::before,
+.md-content details.internal > summary::after {
+  list-style: none !important;
+}
+.md-content details.internal > summary::-webkit-details-marker,
+.md-content details.internal > summary::marker { display: none !important; }
+.md-content details.internal > summary::before,
+.md-content details.internal > summary::after {
+  display: none !important;
+  content: none !important;
+}
+.md-content details.internal > summary {
+  color: #5E8A2E;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.5em 0.75em;
+  cursor: pointer;
+  background: transparent !important;
+}
+.md-content details.internal > summary:hover,
+.md-content details.internal > summary:focus,
+.md-content details.internal[open] > summary,
+.md-content details.internal[open] > summary:hover {
+  background: transparent !important;
+  color: #5E8A2E;
+}
+.md-content details.internal[open] > summary {
+  border-bottom: 1px solid #e0e0e0;
+}
+[data-md-color-scheme="slate"] .md-content details.internal {
+  border-left: 3px solid rgba(157, 200, 99, 0.5);
+}
+[data-md-color-scheme="slate"] .md-content details.internal > summary {
+  color: #9DC863;
+  border-bottom: 1px solid #2a3015;
+}
+
+/* Signature code blocks: same font size (14px) for consistency with source */
+.md-content > div > pre > code,
+.md-content pre > code {
+  font-size: 0.875rem;
+}
+
+/* Prism token colors — tuned to stay readable on the neutral grey body.
+   Keywords match the summary green so the block feels unified; other tokens
+   use warm, desaturated tones that don't fight the green frame. */
+.md-content details.source code[class*="language-"],
+.md-content details.source pre[class*="language-"] {
+  color: #2a2a2a;
+  background: transparent;
+  text-shadow: none;
+}
+.token.keyword, .token.boolean, .token.builtin { color: #5E8A2E; }
+.token.string, .token.char, .token.attr-value { color: #8B6F1A; }
+.token.comment, .token.prolog, .token.doctype, .token.cdata { color: #8FA37A; font-style: italic; }
+.token.number, .token.hexcode { color: #B85C00; }
+.token.function { color: #2E5E8A; }
+.token.class-name, .token.maybe-class-name { color: #6B4E8A; }
+.token.operator, .token.punctuation { color: #555; background: transparent; }
+.token.property, .token.symbol { color: #2a2a2a; }
+.token.directive { color: #B85C00; font-weight: 600; } /* #tag / #pragma */
+
+/* Dark mode: lift the token tones for readability on dark surfaces. */
+[data-md-color-scheme="slate"] .md-content details.source {
+  background: transparent; /* inherit the dark content background */
+  border-left: 3px solid rgba(157, 200, 99, 0.5); /* dark-mode primary at 50% */
+}
+[data-md-color-scheme="slate"] .md-content details.source > summary {
+  color: #9DC863;
+  border-bottom: 1px solid #2a3015;
+}
+[data-md-color-scheme="slate"] .md-content details.source > summary .source-expand {
+  background: rgba(157, 200, 99, 0.15);
+  border-color: rgba(157, 200, 99, 0.4);
+  color: #9DC863;
+}
+[data-md-color-scheme="slate"] .md-content details.source > summary .source-expand:hover {
+  background: rgba(157, 200, 99, 0.3);
+}
+[data-md-color-scheme="slate"] .md-content details.source code,
+[data-md-color-scheme="slate"] .md-content details.source pre {
+  color: #d4d4d4;
+}
+[data-md-color-scheme="slate"] .token.keyword,
+[data-md-color-scheme="slate"] .token.boolean,
+[data-md-color-scheme="slate"] .token.builtin { color: #9DC863; }
+[data-md-color-scheme="slate"] .token.string,
+[data-md-color-scheme="slate"] .token.char { color: #CEB87A; }
+[data-md-color-scheme="slate"] .token.comment { color: #6B8056; }
+[data-md-color-scheme="slate"] .token.number,
+[data-md-color-scheme="slate"] .token.hexcode { color: #E0995E; }
+[data-md-color-scheme="slate"] .token.function { color: #7AA8D4; }
+[data-md-color-scheme="slate"] .token.class-name { color: #B098D4; }
+[data-md-color-scheme="slate"] .token.operator,
+[data-md-color-scheme="slate"] .token.punctuation { color: #aaa; }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Fullscreen source modal — respects the active Material theme.
+   Shell colors use Material CSS variables so the modal matches light/dark;
+   token colors inherit from the theme-specific rules in the Prism section.
+   ──────────────────────────────────────────────────────────────────────── */
+.source-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.source-modal {
+  position: relative;
+  background: var(--md-default-bg-color);
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 8px;
+  padding: 20px;
+  width: 80vw;        /* default 80% viewport width — wide enough for long signatures */
+  max-width: 80vw;    /* hold at 80% so long method signatures stay readable */
+  max-height: 80vh;   /* cap height at 80% viewport; scrolls if taller */
+  overflow: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+.source-modal pre {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--md-code-fg-color, var(--md-default-fg-color));
+  font-size: 0.9rem;
+  line-height: 1.6;
+  white-space: pre;
+  overflow-x: auto;
+}
+.source-modal pre code { background: transparent; }
+/* Hide Material's copy button inside the modal. */
+.source-modal .md-clipboard { display: none !important; }
+
+/* Modal token colors — LIGHT theme (default scheme). Matches the inline
+   source block tokens so the modal feels like the same surface, enlarged. */
+.source-modal .token.keyword,
+.source-modal .token.boolean,
+.source-modal .token.builtin { color: #5E8A2E; }
+.source-modal .token.string,
+.source-modal .token.char { color: #8B6F1A; }
+.source-modal .token.comment { color: #8FA37A; font-style: italic; }
+.source-modal .token.number,
+.source-modal .token.hexcode { color: #B85C00; }
+.source-modal .token.function { color: #2E5E8A; }
+.source-modal .token.class-name { color: #6B4E8A; }
+.source-modal .token.directive { color: #B85C00; font-weight: 600; }
+.source-modal .token.operator,
+.source-modal .token.punctuation { color: #555; }
+
+/* Modal token colors — DARK theme (slate scheme). */
+[data-md-color-scheme="slate"] .source-modal .token.keyword,
+[data-md-color-scheme="slate"] .source-modal .token.boolean,
+[data-md-color-scheme="slate"] .source-modal .token.builtin { color: #9DC863; }
+[data-md-color-scheme="slate"] .source-modal .token.string,
+[data-md-color-scheme="slate"] .source-modal .token.char { color: #CEB87A; }
+[data-md-color-scheme="slate"] .source-modal .token.comment { color: #6B8056; font-style: italic; }
+[data-md-color-scheme="slate"] .source-modal .token.number,
+[data-md-color-scheme="slate"] .source-modal .token.hexcode { color: #E0995E; }
+[data-md-color-scheme="slate"] .source-modal .token.function { color: #7AA8D4; }
+[data-md-color-scheme="slate"] .source-modal .token.class-name { color: #B098D4; }
+[data-md-color-scheme="slate"] .source-modal .token.directive { color: #E0995E; font-weight: 600; }
+[data-md-color-scheme="slate"] .source-modal .token.operator,
+[data-md-color-scheme="slate"] .source-modal .token.punctuation { color: #aaa; }
+
+/* Underline links inside body content so type references are clearly
+   clickable — but NOT in the nav/header/footer chrome (which have their own
+   hover states and would look noisy with underlines). Scoped to the article
+   content region and to code blocks within it. */
+.md-content a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.md-content pre code a,
+.md-content :not(pre) > code a {
+  /* Keep code-block links underlined too, with a slightly tighter offset. */
+  text-decoration: underline;
+  text-underline-offset: 1px;
+}
+
