@@ -213,6 +213,7 @@ xojo-docgen/
 ## Links
 
 - **Repository:** [github.com/jedt3d/xojo-docgen](https://github.com/jedt3d/xojo-docgen)
+- **Wiki:** [github.com/jedt3d/xojo-docgen/wiki](https://github.com/jedt3d/xojo-docgen/wiki)
 - **Issues:** [github.com/jedt3d/xojo-docgen/issues](https://github.com/jedt3d/xojo-docgen/issues)
 - **Xojo:** [xojo.com](https://www.xojo.com)
 - **MkDocs:** [mkdocs.org](https://www.mkdocs.org/)
