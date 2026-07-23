@@ -50,3 +50,37 @@ func TestRenderEditorialManifest(t *testing.T) {
 		t.Fatalf("entities = %#v", manifest.Entities)
 	}
 }
+
+func TestRenderEditorialManifestInfersPageSuperclass(t *testing.T) {
+	project := &Project{
+		Name: "Web Example",
+		Slug: "web-example",
+		Type: "Web2",
+		AllContainers: []*Container{
+			{
+				Name: "LoginPage",
+				FQN:  "LoginPage",
+				Kind: KindPage,
+				Controls: []*Control{
+					{Type: "WebPage", Name: "LoginPage"},
+				},
+			},
+		},
+	}
+
+	outDir := t.TempDir()
+	if err := renderEditorialManifest(project, outDir); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(filepath.Join(outDir, "data", "project.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var manifest editorialManifest
+	if err := json.Unmarshal(data, &manifest); err != nil {
+		t.Fatal(err)
+	}
+	if got := manifest.Entities[0].SuperName; got != "WebPage" {
+		t.Fatalf("inferred page superclass = %q, want WebPage", got)
+	}
+}

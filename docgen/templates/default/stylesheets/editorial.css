@@ -633,18 +633,18 @@ kbd {
 }
 
 .metric-dark {
-  color: #f2fff7;
+  color: #f7f7f7;
   background:
-    linear-gradient(135deg, rgba(17, 131, 75, 0.32), transparent 58%),
+    linear-gradient(135deg, rgba(var(--xojo-primary-rgb), 0.32), transparent 58%),
     var(--ink) !important;
 }
 
 .metric-dark strong {
-  color: #73d79d;
+  color: var(--red-bright);
 }
 
 .metric-dark p {
-  color: rgba(242, 255, 247, 0.66);
+  color: rgba(247, 247, 247, 0.66);
 }
 
 .accordion-section {
@@ -1240,7 +1240,8 @@ footer {
 }
 
 .control-type a,
-.control-type button {
+.control-type button,
+.control-type-name {
   display: grid;
   gap: 4px;
   padding: 0;
@@ -1257,7 +1258,8 @@ footer {
 }
 
 .control-type a > span,
-.control-type button > span {
+.control-type button > span,
+.control-type-name > span {
   text-decoration: underline;
   text-decoration-color: color-mix(in srgb, var(--red) 35%, transparent);
   text-underline-offset: 4px;
@@ -1277,6 +1279,15 @@ footer {
   letter-spacing: 0.08em;
   text-decoration: none;
   text-transform: uppercase;
+}
+
+.control-type-name {
+  cursor: default;
+}
+
+.control-type-name > span {
+  color: var(--ink);
+  text-decoration: none;
 }
 
 .control-instance {

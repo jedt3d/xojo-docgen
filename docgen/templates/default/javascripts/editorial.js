@@ -29,7 +29,7 @@
   }
   function entityForRoute(route) {
     return state.manifest.entities.find(function (entity) {
-      return route === entity.location || route.startsWith(entity.location + "#");
+      return route === entity.location || route.startsWith(entity.location);
     });
   }
   function setRoute(location) {
@@ -38,7 +38,7 @@
     renderRoute();
   }
   function setSection(entity, section) {
-    window.history.pushState(null, "", "#" + entity.location + "#" + section);
+    window.history.pushState(null, "", "#" + entity.location + section);
     renderEntity(entity, section);
   }
   function documentText(documentEntry) {
@@ -47,9 +47,125 @@
     return container.textContent || "";
   }
   function normalizeSource(html) {
-    return (html || "")
+    var normalized = (html || "").replace(
+      /<pre><code([^>]*)>([\s\S]*?)<\/code><\/pre>/g,
+      function (block, attributes, source) {
+        if (!source.includes("\n")) return block;
+        var lines = source.split("\n");
+        var finalLine = lines.slice().reverse().find(function (line) {
+          return line.trim().length > 0;
+        });
+        var closingMatch = finalLine && finalLine.match(
+          /^(\s*)End (?:Sub|Function|Event|Class|Module)\s*$/i
+        );
+        var wrapperIndent = closingMatch ? closingMatch[1].length : 0;
+        if (wrapperIndent === 0) return block;
+        var sourceLines = lines.map(function (line, index) {
+          if (index === 0 || line.trim().length === 0) return line;
+          var leading = (line.match(/^ */) || [""])[0].length;
+          return line.slice(Math.min(wrapperIndent, leading));
+        });
+        return "<pre><code" + attributes + ">" + sourceLines.join("\n") + "</code></pre>";
+      }
+    );
+    return normalized
       .replace(/<\/pre>\s+Source\s+<pre>/g, '</pre><span class="source-label">Source</span><pre class="source-code">')
       .replace(/<pre><code(?![^>]*language-xojo)/g, '<pre><code class="language-xojo"');
+  }
+  function parseControlReferences(html) {
+    var container = document.createElement("div");
+    container.innerHTML = html || "";
+    return Array.from(container.querySelectorAll("li")).map(function (item) {
+      var row = item.cloneNode(true);
+      row.querySelectorAll("ul, ol").forEach(function (nested) { nested.remove(); });
+      var sourceLink = row.querySelector("a");
+      var text = (row.textContent || "").replace(/\s+/g, " ").trim();
+      var parts = text.match(/^(\S+)\s+(\S+?)(?:\s+[—-]\s+"(.*)")?$/);
+      if (!parts) return null;
+      return {
+        typeName: parts[1],
+        instanceName: parts[2],
+        displayedValue: parts[3] || null,
+        href: sourceLink ? sourceLink.getAttribute("href") : null
+      };
+    }).filter(Boolean);
+  }
+  function renderControlReferences(html) {
+    var controls = parseControlReferences(html);
+    return '<ul class="control-reference-list">' + controls.map(function (control, index) {
+      var projectEntity = state.manifest.entities.find(function (entity) {
+        return entity.name === control.typeName;
+      });
+      var typeLink;
+      if (projectEntity) {
+        typeLink = '<button type="button" data-control-location="' +
+          escapeHTML(projectEntity.location) + '"><span>' + escapeHTML(control.typeName) +
+          '</span><small>Project class</small></button>';
+      } else if (control.href) {
+        typeLink = '<a href="' + escapeHTML(control.href) +
+          '" target="_blank" rel="noreferrer"><span>' + escapeHTML(control.typeName) +
+          '</span><small>Xojo API ↗</small></a>';
+      } else {
+        typeLink = '<span class="control-type-name"><span>' + escapeHTML(control.typeName) +
+          '</span><small>Project type</small></span>';
+      }
+      return '<li data-control-index="' + index + '"><span class="control-type">' + typeLink +
+        '</span><strong class="control-instance">' + escapeHTML(control.instanceName) +
+        '</strong><span class="control-value ' + (control.displayedValue ? "" : "is-empty") + '">' +
+        (control.displayedValue ? "“" + escapeHTML(control.displayedValue) + "”" : "No initial value") +
+        "</span></li>";
+    }).join("") + "</ul>";
+  }
+  function parseVersionInfo(html) {
+    var container = document.createElement("div");
+    container.innerHTML = html || "";
+    var month = "(?:January|February|March|April|May|June|July|August|September|October|November|December)";
+    var pattern = new RegExp(
+      "^(\\d+(?:\\.\\d+)*)\\s*(?:-\\s*)?(" + month +
+      "\\s+(?:(?:\\d{1,2}(?:st|nd|rd|th)?,\\s*)?\\d{4}))\\s+(.+)$",
+      "i"
+    );
+    return Array.from(container.querySelectorAll("p")).map(function (paragraph) {
+      var parts = paragraph.textContent.trim().match(pattern);
+      return parts ? { version: parts[1], date: parts[2], description: parts[3] } : null;
+    }).filter(Boolean);
+  }
+  function renderVersionInfo(html) {
+    var versions = parseVersionInfo(html);
+    if (!versions.length) return '<div class="generated-content">' + html + "</div>";
+    return '<ol class="version-info-list">' + versions.map(function (entry) {
+      return '<li><div class="version-entry-meta"><strong>v' + escapeHTML(entry.version) +
+        '</strong><time>' + escapeHTML(entry.date) + '</time></div><p>' +
+        escapeHTML(entry.description) + "</p></li>";
+    }).join("") + "</ol>";
+  }
+  function parseInternalMembers(html) {
+    return Array.from((html || "").matchAll(
+      /###\s+(.+?)\s+`([^`]+)`\s+<pre><code>([\s\S]*?)<\/code><\/pre>/g
+    )).map(function (match) {
+      var declaration = document.createElement("textarea");
+      declaration.innerHTML = match[3];
+      return {
+        name: match[1].trim(),
+        visibility: match[2].trim(),
+        declaration: declaration.value.trim()
+      };
+    });
+  }
+  function renderInternalMembers(html) {
+    var members = parseInternalMembers(html);
+    if (!members.length) return '<div class="generated-content">' + html + "</div>";
+    return '<div class="internal-member-list generated-content">' + members.map(function (member) {
+      return '<article><header><h3>' + escapeHTML(member.name) + '</h3><span>' +
+        escapeHTML(member.visibility) + '</span></header><pre><code class="language-xojo">' +
+        escapeHTML(member.declaration) + "</code></pre></article>";
+    }).join("") + "</div>";
+  }
+  function renderSectionBody(section) {
+    if (section.title === "Controls") return renderControlReferences(section.text);
+    if (section.title === "Version Info") return renderVersionInfo(section.text);
+    if (/— internal$/.test(section.title)) return renderInternalMembers(section.text);
+    return '<div class="generated-content">' + normalizeSource(section.text) + "</div>";
   }
 
   function renderProjectChrome() {
@@ -69,6 +185,22 @@
     byId("surface-count").textContent = entities.filter(function (entity) {
       return ["Page", "Menu Bar", "Toolbar"].includes(entity.kind);
     }).length;
+
+    var frameworkTypes = Array.from(new Set(entities.map(function (entity) {
+      return entity.superName;
+    }).filter(function (type) {
+      return type && type !== "—";
+    })));
+    if (!frameworkTypes.length) frameworkTypes = ["Xojo", project.type];
+    var marqueeTypes = frameworkTypes.concat(frameworkTypes);
+    byId("marquee-track").innerHTML = marqueeTypes.map(function (type) {
+      return "<span>" + escapeHTML(type) + "</span>";
+    }).join("");
+    var revealSentence = "Follow the application from startup to state, data access, interface controls, " +
+      "shared logic, and the source that connects every generated entity.";
+    byId("word-reveal").innerHTML = revealSentence.split(" ").map(function (word) {
+      return '<span class="reveal-word">' + escapeHTML(word) + " </span>";
+    }).join("");
 
     var facts = [
       ["Target", project.type],
@@ -170,17 +302,23 @@
     byId("reader-content").innerHTML = sections.map(function (section) {
       var anchor = section.location.split("#")[1] || "";
       var structural = structuralSections.has(section.title);
+      var emptyGroup = structural && !(section.text || "").trim();
       return '<section class="generated-section ' + (structural ? "section-group" : "section-member") +
+        (emptyGroup ? " section-group-empty" : "") +
         '" id="' + escapeHTML(anchor) + '">' +
         (structural ? "<h2>" : '<h3 class="member-heading">') + escapeHTML(section.title) +
         (structural ? "</h2>" : "</h3>") +
-        '<div class="generated-content">' + normalizeSource(section.text) + "</div></section>";
+        renderSectionBody(section) + "</section>";
     }).join("");
+
+    byId("reader-content").querySelectorAll("[data-control-location]").forEach(function (button) {
+      button.addEventListener("click", function () { setRoute(button.dataset.controlLocation); });
+    });
 
     byId("reader-toc").innerHTML = "<p>On this page</p>" + sections.map(function (section) {
       var anchor = section.location.split("#")[1] || "";
       return '<a class="' + (structuralSections.has(section.title) ? "toc-group" : "toc-member") +
-        '" href="#' + escapeHTML(entity.location + "#" + anchor) + '" data-section="' + escapeHTML(anchor) + '">' +
+        '" href="#' + escapeHTML(entity.location + anchor) + '" data-section="' + escapeHTML(anchor) + '">' +
         escapeHTML(section.title) + "</a>";
     }).join("");
     byId("reader-toc").querySelectorAll("[data-section]").forEach(function (link) {
@@ -251,9 +389,80 @@
   }
   function closeSearch() { byId("search-backdrop").hidden = true; }
 
+  function startLandmarkMotion() {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.querySelectorAll(".reveal-word").forEach(function (word) {
+        word.style.opacity = "1";
+      });
+      return;
+    }
+
+    document.querySelectorAll(".hero-copy > *").forEach(function (element, index) {
+      element.animate(
+        [
+          { transform: "translateY(38px)", opacity: 0 },
+          { transform: "translateY(0)", opacity: 1 }
+        ],
+        { duration: 900, delay: index * 90, easing: "cubic-bezier(.22,1,.36,1)", fill: "both" }
+      );
+    });
+    var heroVisual = document.querySelector(".hero-visual");
+    if (heroVisual) {
+      heroVisual.animate(
+        [
+          { transform: "scale(.86)", opacity: 0 },
+          { transform: "scale(1)", opacity: 1 }
+        ],
+        { duration: 1100, delay: 200, easing: "cubic-bezier(.22,1,.36,1)", fill: "both" }
+      );
+    }
+    var marquee = byId("marquee-track");
+    if (marquee) {
+      marquee.animate(
+        [
+          { transform: "translateX(0)" },
+          { transform: "translateX(-50%)" }
+        ],
+        { duration: 26000, iterations: Infinity, easing: "linear" }
+      );
+    }
+
+    var revealObserver = new IntersectionObserver(function (entries, observer) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.querySelectorAll(".reveal-word").forEach(function (word, index) {
+          word.animate(
+            [{ opacity: 0.16 }, { opacity: 1 }],
+            { duration: 500, delay: index * 35, fill: "forwards" }
+          );
+        });
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.25 });
+    var reveal = document.querySelector(".word-reveal");
+    if (reveal) revealObserver.observe(reveal);
+
+    var storyObserver = new IntersectionObserver(function (entries, observer) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.animate(
+          [
+            { transform: "translateY(72px) scale(.9)", opacity: 0.35 },
+            { transform: "translateY(0) scale(1)", opacity: 1 }
+          ],
+          { duration: 760, easing: "cubic-bezier(.22,1,.36,1)", fill: "both" }
+        );
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.2 });
+    document.querySelectorAll(".story-card").forEach(function (card) {
+      storyObserver.observe(card);
+    });
+  }
+
   function bindShell() {
     byId("brand-button").addEventListener("click", function () { setRoute(null); });
-    byId("back-button").addEventListener("click", function () { window.history.back(); });
+    byId("back-button").addEventListener("click", function () { setRoute(null); });
     byId("browse-entities").addEventListener("click", function () {
       byId("entity-bento").scrollIntoView({ behavior: "smooth" });
     });
@@ -291,13 +500,14 @@
 
   Promise.all([
     fetch(base + "/data/project.json").then(function (response) { return response.json(); }),
-    fetch(base + "/search/search_index.json").then(function (response) { return response.json(); })
+    fetch(base + "/data/documents.json").then(function (response) { return response.json(); })
   ]).then(function (results) {
     state.manifest = results[0];
     state.documents = results[1].docs || [];
     renderProjectChrome();
     renderStories();
     bindShell();
+    startLandmarkMotion();
     renderRoute();
   }).catch(function (error) {
     document.body.innerHTML = "<main class=\"load-error\"><h1>Documentation could not load.</h1><pre>" +

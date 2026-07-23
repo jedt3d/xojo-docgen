@@ -9,7 +9,7 @@ import (
 
 func TestValidateTemplateDirRequiresCompleteTemplate(t *testing.T) {
 	templateDir := t.TempDir()
-	if err := os.WriteFile(filepath.Join(templateDir, "mkdocs.base.yml"), []byte("theme: material\n"), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(templateDir, "mkdocs.base.yml"), []byte("theme:\n  name: null\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 
@@ -30,7 +30,7 @@ func TestValidateAndCopyTemplateDir(t *testing.T) {
 	}
 
 	destinationDir := t.TempDir()
-	staleCSS := filepath.Join(destinationDir, "stylesheets", "extra.css")
+	staleCSS := filepath.Join(destinationDir, "stylesheets", "editorial.css")
 	if err := os.MkdirAll(filepath.Dir(staleCSS), 0o755); err != nil {
 		t.Fatal(err)
 	}
@@ -45,7 +45,7 @@ func TestValidateAndCopyTemplateDir(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if string(copied) != "stylesheets/extra.css" {
+	if string(copied) != "stylesheets/editorial.css" {
 		t.Fatalf("copied CSS = %q", copied)
 	}
 }

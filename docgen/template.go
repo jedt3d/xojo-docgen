@@ -13,14 +13,12 @@ var requiredTemplateFiles = []string{
 	"mkdocs.base.yml",
 	"assets/featured.png",
 	"assets/featured_portrait.png",
-	"javascripts/landing-sidebar.js",
+	"hooks/editorial.py",
 	"javascripts/prism.js",
-	"javascripts/source-modal.js",
 	"javascripts/xojo.prism.js",
 	"javascripts/editorial.js",
 	"overrides/main.html",
 	"stylesheets/editorial.css",
-	"stylesheets/extra.css",
 	"stylesheets/primary-color.css",
 }
 

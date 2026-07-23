@@ -10,7 +10,7 @@ A Go program that parses Xojo projects and emits per-project API documentation a
 3. **Extracts** a structured model: classes, modules, interfaces, pages, and their members (methods, properties, computed properties, constants, enums, delegates, event definitions, event handlers) — using the `#tag` layer only to *structure*, and rendering the real VB/Xojo code as the display focus.
 4. **Links** type references to the official Xojo documentation via the shipped `objects.inv` Sphinx inventory (1,400+ API pages).
 5. **Copies** the EEWeb editorial template, emits its project/entity manifest, generates its primary-color palette, and writes Markdown + a per-project `mkdocs.yml` into `docs/api/<slug>/`.
-6. `mkdocs build` then renders each project into a **standalone, deploy-ready static site** at `docs/api-published/<slug>/`.
+6. `mkdocs build` renders Markdown, runs the Landmark payload hook, and publishes a **standalone, deploy-ready static site** at `docs/api-published/<slug>/`.
 
 ## Build & run
 
@@ -80,6 +80,7 @@ tools/docgen/
 ├── templates/default/      canonical EEWeb editorial publishing template
 │   ├── mkdocs.base.yml
 │   ├── assets/
+│   ├── hooks/
 │   ├── javascripts/
 │   ├── overrides/
 │   └── stylesheets/
@@ -91,10 +92,11 @@ tools/docgen/
 - **Two source layers.** Xojo text files have `#tag` structural blocks (hidden) and the VB/Xojo code (displayed). The extractor uses `#tag` only to find entities; what it renders is the real code.
 - **One parser covers everything.** The `#tag` + `Begin/End` grammar is uniform across `.xojo_code` / `.xojo_window` / `.xojo_menu` / `.xojo_toolbar` and across all project types (Console, Desktop, iOS, Mobile, Web).
 - **External links.** The `objects.inv` shipped with the Xojo IDE maps canonical PascalCase names (`WebButton`, `Integer`, `SQLiteDatabase`) to their official doc URLs. The extractor links type tokens that follow `As` in signatures.
-- **Per-project standalone sites.** Each `docs/api-published/<slug>/` is a complete static site with its own `index.html`, search, and `.nojekyll` — independently deployable to GitHub Pages or any static host.
+- **Per-project standalone sites.** Each `docs/api-published/<slug>/` is a complete static site with its own `index.html`, generated Landmark document payload, client search, and `.nojekyll` — independently deployable to GitHub Pages or any static host.
 - **Hierarchy exclusions.** `-exclude-folder` matches Xojo `Folder` item names case-insensitively and follows ParentID relationships rather than filesystem paths. Each generated project directory is replaced during regeneration so stale pages from an excluded subtree cannot remain.
 - **Generated output is replaceable.** Every run removes and recreates `docs/api/<slug>/`. Do not store hand-written files in that generated project directory.
-- **Templates are source assets.** The default theme is ordinary files under `templates/default`, not hard-coded Go. A custom template must contain the same required paths, including `overrides/main.html`, `javascripts/editorial.js`, `stylesheets/editorial.css`, and `stylesheets/primary-color.css`; the copied palette file is regenerated without changing the source template.
+- **Templates are source assets.** The default theme is ordinary files under `templates/default`, not hard-coded Go. A custom template must contain the same required paths, including `overrides/main.html`, `hooks/editorial.py`, `javascripts/editorial.js`, `stylesheets/editorial.css`, and `stylesheets/primary-color.css`; the copied palette file is regenerated without changing the source template.
+- **No Material dependency.** MkDocs uses `theme.name: null`. The Landmark override owns the complete DOM, the build hook emits `data/documents.json`, and the reader never consumes Material templates, components, bundles, or search-index HTML.
 - **The EEWeb design is canonical.** The default reader is the approved `eeweb-docs-editorial.sjedt.chatgpt.site` interface made project-agnostic. Project names, facts, entity groups, counts, sections, search results, links, and source bodies come from generated data rather than EEWeb constants.
 - **One color input, coherent variants.** `-primary-color` accepts only `R,G,B`. The generator mixes the base with white/black for its ramp and adjusts link accents until they meet a 4.5:1 contrast target on the light and dark surfaces.
 

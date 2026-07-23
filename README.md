@@ -11,7 +11,7 @@
 - **Canonical EEWeb reader.** The interface approved at `eeweb-docs-editorial.sjedt.chatgpt.site` is the default publishing template: editorial overview, collapsible project rail, search, hash-addressable entity reader, sticky page contents, dark mode, and Xojo syntax highlighting.
 - **Theme without recompiling.** The default reader is a normal template directory. `-template-dir` selects a complete per-project template, while `-primary-color R,G,B` generates its coordinated palette.
 - **Syntax highlighting.** Full Xojo grammar via Prism.js, preserved independently of the selected primary color.
-- **Source review.** Every method body sits in a collapsible block with a fullscreen modal for long code review.
+- **Source review.** Every method body remains readable in horizontally scrollable, syntax-highlighted source blocks.
 
 ---
 
@@ -19,14 +19,14 @@
 
 Xojo is a cross-platform development tool for building Desktop, Web, and Mobile apps. Its text-based "Xojo Project" format saves each project item as a separate diff-friendly file — perfect for Git, but there was no good way to generate API documentation from it like you can with Javadoc, Sphinx, or YARD.
 
-`xojodoc` (a community tool) existed but was unmaintained and written in Xojo itself, making it hard to run in CI. `xojo-docgen` takes a different approach: a purpose-built Go extractor that parses the `#tag` format directly. MkDocs builds the Markdown and search index; DocGen’s EEWeb editorial reader owns the published interface. The result is fast, self-contained, and produces genuinely readable docs.
+`xojodoc` (a community tool) existed but was unmaintained and written in Xojo itself, making it hard to run in CI. `xojo-docgen` takes a different approach: a purpose-built Go extractor that parses the `#tag` format directly. MkDocs renders Markdown and runs the static build; DocGen’s EEWeb editorial reader owns the complete published DOM and interface. The result is fast, self-contained, and produces genuinely readable docs.
 
 ---
 
 ## Quick start
 
 ```bash
-# Prerequisites: Go 1.21+, Python 3.10+, MkDocs + Material (see docs/setup-guide.md)
+# Prerequisites: Go 1.21+, Python 3.10+, MkDocs, mkdocs-literate-nav
 
 # Build the extractor
 cd docgen
@@ -85,7 +85,7 @@ directory structure, including `overrides/main.html`,
                                      docs/api-published/<slug>/  ← standalone site
 ```
 
-Each published site is a complete static site — its own `index.html`, search index, `.nojekyll`, and assets. Deploy one to GitHub Pages or drop it on any static host.
+Each published site is a complete static site — its own `index.html`, Landmark document payload, client search, `.nojekyll`, and assets. Deploy one to GitHub Pages or drop it on any static host.
 
 ---
 
@@ -97,7 +97,6 @@ Each published site is a complete static site — its own `index.html`, search i
 |---|---|---|---|---|
 | **Go** | The Go Authors | BSD-3-Clause | The extractor language | [go.dev](https://go.dev) |
 | **MkDocs** | Tom Christie | BSD-2-Clause | Static site generator for the docs | [mkdocs.org](https://www.mkdocs.org) |
-| **MkDocs Material** | Martin Donath | MIT | The documentation theme | [squidfunk.github.io/mkdocs-material](https://squidfunk.github.io/mkdocs-material/) |
 | **mkdocs-literate-nav** by Tim Schwenke | MIT | Auto-builds the nav from the file tree | [github.com/oprypin/mkdocs-literate-nav](https://github.com/oprypin/mkdocs-literate-nav) |
 | **Prism.js** | Lea Verou & James DiGioia | MIT | Client-side syntax highlighting | [prismjs.com](https://prismjs.com) |
 | **Xojo Prism grammar** | Worajedt Sitthidumrong | MIT | The Xojo language definition for Prism | [github.com/jedt3d/xojo-syntax-highlight-for-web](https://github.com/jedt3d/xojo-syntax-highlight-for-web) |
@@ -148,6 +147,7 @@ xojo-docgen/
 │   ├── templates/default/     built-in editorial template
 │   │   ├── mkdocs.base.yml
 │   │   ├── assets/
+│   │   ├── hooks/             rendered-document payload hook
 │   │   ├── overrides/         complete EEWeb publishing shell
 │   │   ├── javascripts/       reader runtime + Prism.js Xojo grammar
 │   │   └── stylesheets/       generated palette + canonical EEWeb CSS
@@ -169,7 +169,7 @@ xojo-docgen/
 - **Repository:** [github.com/jedt3d/xojo-docgen](https://github.com/jedt3d/xojo-docgen)
 - **Issues:** [github.com/jedt3d/xojo-docgen/issues](https://github.com/jedt3d/xojo-docgen/issues)
 - **Xojo:** [xojo.com](https://www.xojo.com)
-- **MkDocs Material:** [squidfunk.github.io/mkdocs-material](https://squidfunk.github.io/mkdocs-material/)
+- **MkDocs:** [mkdocs.org](https://www.mkdocs.org/)
 - **Xojo syntax highlight:** [github.com/jedt3d/xojo-syntax-highlight-for-web](https://github.com/jedt3d/xojo-syntax-highlight-for-web)
 
 ## Contributing

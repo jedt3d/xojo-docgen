@@ -49,6 +49,9 @@ func renderEditorialManifest(project *Project, outDir string) error {
 			continue
 		}
 		superName := container.Super
+		if superName == "" && container.Kind == KindPage && len(container.Controls) > 0 {
+			superName = container.Controls[0].Type
+		}
 		if superName == "" {
 			superName = "—"
 		}

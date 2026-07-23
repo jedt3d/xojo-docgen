@@ -127,9 +127,9 @@ func renderPrimaryColorCSS(primary RGBColor) string {
   --xojo-primary-wash: rgba(%s, 0.10);
 }
 
-[data-md-color-scheme="slate"],
 :root[data-theme="dark"] {
   --xojo-primary: %s;
+  --xojo-primary-rgb: %s;
   --xojo-primary-light: %s;
   --xojo-primary-dark: %s;
   --xojo-primary-soft: %s;
@@ -144,7 +144,7 @@ func renderPrimaryColorCSS(primary RGBColor) string {
 		primary.hex(), primary.cssRGB(), light.hex(), dark.hex(), soft.hex(),
 		contrastText(primary).hex(), lightAccent.hex(),
 		primary.cssRGB(), primary.cssRGB(), primary.cssRGB(),
-		darkAccent.hex(), darkAccent.mix(white, 0.22).hex(), darkAccent.mix(black, 0.28).hex(),
+		darkAccent.hex(), darkAccent.cssRGB(), darkAccent.mix(white, 0.22).hex(), darkAccent.mix(black, 0.28).hex(),
 		darkSoft.hex(), contrastText(darkAccent).hex(), darkAccent.hex(),
 		darkAccent.cssRGB(), darkAccent.cssRGB(), darkAccent.cssRGB(),
 	)

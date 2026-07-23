@@ -13,9 +13,9 @@
   --xojo-primary-wash: rgba(11, 99, 56, 0.10);
 }
 
-[data-md-color-scheme="slate"],
 :root[data-theme="dark"] {
   --xojo-primary: #549274;
+  --xojo-primary-rgb: 84, 146, 116;
   --xojo-primary-light: #7AAA93;
   --xojo-primary-dark: #3C6954;
   --xojo-primary-soft: #0E3120;
