@@ -1,14 +1,15 @@
 # xojo-docgen
 
-**Generate API documentation from Xojo projects — Go → Markdown → MkDocs Material.**
+**Generate API documentation from Xojo projects — Go → Markdown → EEWeb editorial reader.**
 
 `xojo-docgen` parses Xojo text-project files (`.xojo_project` + `.xojo_code` / `.xojo_window` / `.xojo_menu` / `.xojo_toolbar`), extracts every documentable entity, and emits clean Markdown — then renders each project into a standalone, deploy-ready static site using an editable editorial Xojo template.
 
 - **Code as the display focus.** The `#tag` structural layer is used only to extract entities; what you see in the docs is the real VB/Xojo source (signatures + collapsible full method bodies).
-- **Per-project sites.** Each Xojo project becomes its own independent MkDocs Material site, ready to publish to GitHub Pages or any static host.
+- **Per-project sites.** Each Xojo project becomes its own independent static site, ready to publish to GitHub Pages or any static host.
 - **Multi-project.** Point the tool at a folder of projects; it generates a separate doc set for each. Built and tested against all five Xojo project types (Console, Desktop, iOS, Mobile/Android, Web).
 - **Official-docs linking.** Type references (`As WebButton`, `As Integer`, `Inherits SQLiteDatabase`) auto-link to the official Xojo documentation via the IDE's shipped `objects.inv` inventory.
-- **Theme without recompiling.** The default theme is a normal template directory. `-template-dir` selects a complete per-project template, while `-primary-color R,G,B` generates its coordinated palette.
+- **Canonical EEWeb reader.** The interface approved at `eeweb-docs-editorial.sjedt.chatgpt.site` is the default publishing template: editorial overview, collapsible project rail, search, hash-addressable entity reader, sticky page contents, dark mode, and Xojo syntax highlighting.
+- **Theme without recompiling.** The default reader is a normal template directory. `-template-dir` selects a complete per-project template, while `-primary-color R,G,B` generates its coordinated palette.
 - **Syntax highlighting.** Full Xojo grammar via Prism.js, preserved independently of the selected primary color.
 - **Source review.** Every method body sits in a collapsible block with a fullscreen modal for long code review.
 
@@ -18,7 +19,7 @@
 
 Xojo is a cross-platform development tool for building Desktop, Web, and Mobile apps. Its text-based "Xojo Project" format saves each project item as a separate diff-friendly file — perfect for Git, but there was no good way to generate API documentation from it like you can with Javadoc, Sphinx, or YARD.
 
-`xojodoc` (a community tool) existed but was unmaintained and written in Xojo itself, making it hard to run in CI. `xojo-docgen` takes a different approach: a purpose-built Go extractor that parses the `#tag` format directly, paired with [MkDocs Material](https://squidfunk.github.io/mkdocs-material/) for publishing. The result is fast, self-contained, and produces genuinely beautiful docs.
+`xojodoc` (a community tool) existed but was unmaintained and written in Xojo itself, making it hard to run in CI. `xojo-docgen` takes a different approach: a purpose-built Go extractor that parses the `#tag` format directly. MkDocs builds the Markdown and search index; DocGen’s EEWeb editorial reader owns the published interface. The result is fast, self-contained, and produces genuinely readable docs.
 
 ---
 
@@ -67,8 +68,10 @@ each generated project. The source template is never modified.
 `-template-dir` is intentionally limited to `-single`, preventing one
 project-specific visual identity from being applied accidentally to a batch.
 Copy `docgen/templates/default/` as the starting point; keep the required
-directory structure and use the `--xojo-primary-*` CSS variables when custom
-styles should respond to `-primary-color`.
+directory structure, including `overrides/main.html`,
+`javascripts/editorial.js`, and `stylesheets/editorial.css`. Use the
+`--xojo-primary-*` CSS variables when custom styles should respond to
+`-primary-color`.
 
 ## How it works
 
@@ -141,11 +144,13 @@ xojo-docgen/
 │   ├── emit_mkdocs.go         per-project mkdocs.yml emitter
 │   ├── template.go            resolve, validate, and copy templates
 │   ├── primary_color.go       RGB parsing + derived palette generation
+│   ├── editorial_manifest.go  project/entity payload for the editorial reader
 │   ├── templates/default/     built-in editorial template
 │   │   ├── mkdocs.base.yml
 │   │   ├── assets/
-│   │   ├── javascripts/       Prism.js + Xojo grammar + UI behavior
-│   │   └── stylesheets/       generated-palette contract + theme CSS
+│   │   ├── overrides/         complete EEWeb publishing shell
+│   │   ├── javascripts/       reader runtime + Prism.js Xojo grammar
+│   │   └── stylesheets/       generated palette + canonical EEWeb CSS
 │   └── README.md              extractor-specific docs
 └── sample_project/            Xojo sample projects (© Xojo, Inc.) — test fixtures
     ├── NOTICE                 Xojo copyright notice

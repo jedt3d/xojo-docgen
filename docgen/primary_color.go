@@ -127,7 +127,8 @@ func renderPrimaryColorCSS(primary RGBColor) string {
   --xojo-primary-wash: rgba(%s, 0.10);
 }
 
-[data-md-color-scheme="slate"] {
+[data-md-color-scheme="slate"],
+:root[data-theme="dark"] {
   --xojo-primary: %s;
   --xojo-primary-light: %s;
   --xojo-primary-dark: %s;

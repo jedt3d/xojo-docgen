@@ -33,6 +33,9 @@ func renderMarkdown(p *Project, outRoot string, lm *LinkMap, includePrivate bool
 	if err := renderLandingPage(p, outDir, lm); err != nil {
 		return err
 	}
+	if err := renderEditorialManifest(p, outDir); err != nil {
+		return fmt.Errorf("write editorial project manifest: %w", err)
+	}
 
 	// Per-container pages.
 	rc := &renderCtx{

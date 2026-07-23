@@ -17,6 +17,9 @@ var requiredTemplateFiles = []string{
 	"javascripts/prism.js",
 	"javascripts/source-modal.js",
 	"javascripts/xojo.prism.js",
+	"javascripts/editorial.js",
+	"overrides/main.html",
+	"stylesheets/editorial.css",
 	"stylesheets/extra.css",
 	"stylesheets/primary-color.css",
 }

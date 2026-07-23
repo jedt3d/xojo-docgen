@@ -1,6 +1,6 @@
 # xojo-docgen
 
-A Go program that parses Xojo projects and emits per-project API documentation as Markdown, then renders standalone MkDocs Material sites with an editorial Xojo theme.
+A Go program that parses Xojo projects and emits per-project API documentation as Markdown, then publishes it through the canonical EEWeb editorial reader.
 
 
 ## What it does
@@ -9,7 +9,7 @@ A Go program that parses Xojo projects and emits per-project API documentation a
 2. **Parses** each project's `.xojo_project` manifest + `.xojo_code` / `.xojo_window` / `.xojo_menu` / `.xojo_toolbar` files.
 3. **Extracts** a structured model: classes, modules, interfaces, pages, and their members (methods, properties, computed properties, constants, enums, delegates, event definitions, event handlers) — using the `#tag` layer only to *structure*, and rendering the real VB/Xojo code as the display focus.
 4. **Links** type references to the official Xojo documentation via the shipped `objects.inv` Sphinx inventory (1,400+ API pages).
-5. **Copies** a complete template, generates its primary-color palette, and emits Markdown + a per-project `mkdocs.yml` into `docs/api/<slug>/`.
+5. **Copies** the EEWeb editorial template, emits its project/entity manifest, generates its primary-color palette, and writes Markdown + a per-project `mkdocs.yml` into `docs/api/<slug>/`.
 6. `mkdocs build` then renders each project into a **standalone, deploy-ready static site** at `docs/api-published/<slug>/`.
 
 ## Build & run
@@ -76,10 +76,12 @@ tools/docgen/
 ├── emit_mkdocs.go          emit per-project mkdocs.yml
 ├── template.go             resolve, validate, and copy complete templates
 ├── primary_color.go        parse RGB and generate the derived CSS palette
-├── templates/default/      built-in editorial MkDocs template
+├── editorial_manifest.go   project/entity payload consumed by the reader
+├── templates/default/      canonical EEWeb editorial publishing template
 │   ├── mkdocs.base.yml
 │   ├── assets/
 │   ├── javascripts/
+│   ├── overrides/
 │   └── stylesheets/
 └── README.md               this file
 ```
@@ -92,7 +94,8 @@ tools/docgen/
 - **Per-project standalone sites.** Each `docs/api-published/<slug>/` is a complete static site with its own `index.html`, search, and `.nojekyll` — independently deployable to GitHub Pages or any static host.
 - **Hierarchy exclusions.** `-exclude-folder` matches Xojo `Folder` item names case-insensitively and follows ParentID relationships rather than filesystem paths. Each generated project directory is replaced during regeneration so stale pages from an excluded subtree cannot remain.
 - **Generated output is replaceable.** Every run removes and recreates `docs/api/<slug>/`. Do not store hand-written files in that generated project directory.
-- **Templates are source assets.** The default theme is ordinary files under `templates/default`, not hard-coded Go. A custom template must contain the same required paths, including `stylesheets/primary-color.css`; the copied palette file is regenerated without changing the source template.
+- **Templates are source assets.** The default theme is ordinary files under `templates/default`, not hard-coded Go. A custom template must contain the same required paths, including `overrides/main.html`, `javascripts/editorial.js`, `stylesheets/editorial.css`, and `stylesheets/primary-color.css`; the copied palette file is regenerated without changing the source template.
+- **The EEWeb design is canonical.** The default reader is the approved `eeweb-docs-editorial.sjedt.chatgpt.site` interface made project-agnostic. Project names, facts, entity groups, counts, sections, search results, links, and source bodies come from generated data rather than EEWeb constants.
 - **One color input, coherent variants.** `-primary-color` accepts only `R,G,B`. The generator mixes the base with white/black for its ramp and adjusts link accents until they meet a 4.5:1 contrast target on the light and dark surfaces.
 
 ## Known limitations
