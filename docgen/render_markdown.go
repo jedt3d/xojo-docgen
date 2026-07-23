@@ -13,6 +13,9 @@ import (
 // under outDir/<slug>/, plus an index.md landing page and a featured image.
 func renderMarkdown(p *Project, outRoot string, lm *LinkMap, includePrivate bool, assets *templateAssets) error {
 	outDir := filepath.Join(outRoot, p.Slug)
+	if err := os.RemoveAll(outDir); err != nil {
+		return fmt.Errorf("clear generated project docs: %w", err)
+	}
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
 		return err
 	}

@@ -33,6 +33,10 @@ go build -o xojo-docgen .
 # Generate Markdown for all sample projects
 ./xojo-docgen -root ../sample_project -out ../../docs/api -v
 
+# Or generate one project while omitting dependency folders from its API
+./xojo-docgen -single "../../Long Pepper.xojo_project" \
+  -exclude-folder "dependencies,vendor" -out ../../docs/api -v
+
 # Render each project into a standalone site
 cd ../..
 make docs
@@ -43,6 +47,12 @@ make docs-serve PROJECT=eeweb    # http://127.0.0.1:8000
 # Preview all projects on their own local domains
 make docs-serve-all              # http://eeweb.lvh.me:8910/, etc.
 ```
+
+`-exclude-folder` accepts a comma-separated list of Xojo `Folder` item names.
+Matching is case-insensitive and follows the manifest's `ParentID` hierarchy,
+so every nested item is omitted regardless of its filesystem path or declaration
+order. Regeneration replaces `docs/api/<slug>/` completely to prevent stale API
+pages; keep hand-written files outside that generated directory.
 
 ## How it works
 
@@ -104,6 +114,7 @@ xojo-docgen/
 │   ├── go.mod
 │   ├── main.go                CLI: discover projects, loop, render
 │   ├── manifest.go            parse .xojo_project
+│   ├── manifest_test.go       manifest hierarchy exclusion tests
 │   ├── parser.go              #tag / Begin-End two-mode scanner (core)
 │   ├── inline.go              quote-aware property parser
 │   ├── signature.go           parse Sub/Function + property declarations

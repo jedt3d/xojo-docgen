@@ -18,6 +18,7 @@ func main() {
 		includePrivate = flag.Bool("include-private", true, "include private members (collapsed).")
 		verbose        = flag.Bool("v", false, "verbose output.")
 		publishPrep    = flag.Bool("publish-prep", false, "after generating, write .nojekyll into each docs/api-published/<slug>/ so sites are GitHub-Pages ready.")
+		excludeFolder  = flag.String("exclude-folder", "", "comma-separated Xojo Folder item names whose complete manifest subtrees are omitted.")
 	)
 	flag.Parse()
 
@@ -69,7 +70,7 @@ func main() {
 	var failed int
 	var slugs []string
 	for _, projPath := range projects {
-		slug, err := processProject(projPath, *out, lm, *includePrivate, *verbose, assets)
+		slug, err := processProject(projPath, *out, lm, *includePrivate, *verbose, assets, splitCommaList(*excludeFolder))
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: %s: %v\n", projPath, err)
 			failed++
@@ -116,7 +117,7 @@ func findProjects(root string) []string {
 
 // processProject parses one project, builds its model, and renders Markdown.
 // Returns the project slug.
-func processProject(projPath string, outRoot string, lm *LinkMap, includePrivate bool, verbose bool, assets *templateAssets) (string, error) {
+func processProject(projPath string, outRoot string, lm *LinkMap, includePrivate bool, verbose bool, assets *templateAssets, excludedFolders []string) (string, error) {
 	projPath, _ = filepath.Abs(projPath)
 	projectDir := filepath.Dir(projPath)
 	config, items, err := parseManifest(projPath)
@@ -125,6 +126,12 @@ func processProject(projPath string, outRoot string, lm *LinkMap, includePrivate
 	}
 
 	slug := projectSlug(projPath)
+	var excludedCount int
+	items, excludedCount = excludeFolderSubtrees(items, excludedFolders)
+	if verbose && len(excludedFolders) > 0 {
+		fmt.Fprintf(os.Stderr, "project %s: excluded %d manifest item(s) under folder(s): %s\n",
+			slug, excludedCount, strings.Join(excludedFolders, ", "))
+	}
 	p := &Project{
 		Name:         projectDisplayName(projPath),
 		Slug:         slug,
@@ -196,6 +203,17 @@ func processProject(projPath string, outRoot string, lm *LinkMap, includePrivate
 		return slug, err
 	}
 	return slug, nil
+}
+
+func splitCommaList(raw string) []string {
+	var values []string
+	for _, value := range strings.Split(raw, ",") {
+		value = strings.TrimSpace(value)
+		if value != "" {
+			values = append(values, value)
+		}
+	}
+	return values
 }
 
 // computeFQN builds the fully-qualified name by walking the parent chain.

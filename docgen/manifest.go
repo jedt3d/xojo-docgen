@@ -47,6 +47,52 @@ func parseManifest(path string) (config map[string]string, items []ManifestItem,
 	return config, items, nil
 }
 
+// excludeFolderSubtrees removes matching Folder items and every manifest item
+// below them. It follows ParentID relationships rather than source paths, so it
+// still works when children appear before their parent folders in the manifest.
+func excludeFolderSubtrees(items []ManifestItem, folderNames []string) ([]ManifestItem, int) {
+	if len(folderNames) == 0 {
+		return items, 0
+	}
+
+	names := make(map[string]bool, len(folderNames))
+	for _, name := range folderNames {
+		name = strings.ToLower(strings.TrimSpace(name))
+		if name != "" {
+			names[name] = true
+		}
+	}
+	if len(names) == 0 {
+		return items, 0
+	}
+
+	excludedIDs := make(map[uint64]bool)
+	for _, item := range items {
+		if item.ItemType == "Folder" && names[strings.ToLower(item.Name)] {
+			excludedIDs[item.ID] = true
+		}
+	}
+
+	for changed := true; changed; {
+		changed = false
+		for _, item := range items {
+			if excludedIDs[item.ID] || !excludedIDs[item.ParentID] {
+				continue
+			}
+			excludedIDs[item.ID] = true
+			changed = true
+		}
+	}
+
+	filtered := make([]ManifestItem, 0, len(items)-len(excludedIDs))
+	for _, item := range items {
+		if !excludedIDs[item.ID] {
+			filtered = append(filtered, item)
+		}
+	}
+	return filtered, len(excludedIDs)
+}
+
 // parseItemLine tries to parse a line as an ItemType=Name;Path;ID;ParentID;Visible record.
 // Returns ok=false if the line is not in that shape.
 func parseItemLine(line string) (it ManifestItem, ok bool) {

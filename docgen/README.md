@@ -25,6 +25,10 @@ go build -o xojo-docgen .
 # Or one project
 ./xojo-docgen -single ../../tools/sample_project/ee_web/EEWeb.xojo_project -out ../../docs/api -v
 
+# Omit Xojo project Folder items and their complete ParentID subtrees
+./xojo-docgen -single "../../Long Pepper.xojo_project" \
+  -exclude-folder "dependencies,vendor" -out ../../docs/api -v
+
 # Then build all sites
 cd ../..
 make docs
@@ -36,6 +40,7 @@ make docs
 |---|---|---|
 | `-root <dir>` | `tools/sample_project` | Root to scan for `*.xojo_project` (recursive). Each becomes a separate doc set. |
 | `-single <file>` | — | Process just one `.xojo_project`. |
+| `-exclude-folder <names>` | — | Omit comma-separated Xojo `Folder` names (case-insensitive) and their complete ParentID subtrees. |
 | `-out <dir>` | `docs/api` | Output dir for generated Markdown. |
 | `-docs <path>` | auto-detect | Path to the Xojo `Documentation` dir (for `objects.inv`). |
 | `-no-links` | false | Disable external links to official Xojo docs. |
@@ -50,6 +55,7 @@ tools/docgen/
 ├── go.mod                  Go module
 ├── main.go                 CLI: discover projects, loop, render
 ├── manifest.go             parse .xojo_project (config + item tree)
+├── manifest_test.go        manifest hierarchy exclusion tests
 ├── parser.go               #tag / Begin-End two-mode scanner (core)
 ├── inline.go               quote-aware comma-separated property parser
 ├── signature.go            parse Sub/Function lines + property declarations
@@ -71,6 +77,8 @@ tools/docgen/
 - **One parser covers everything.** The `#tag` + `Begin/End` grammar is uniform across `.xojo_code` / `.xojo_window` / `.xojo_menu` / `.xojo_toolbar` and across all project types (Console, Desktop, iOS, Mobile, Web).
 - **External links.** The `objects.inv` shipped with the Xojo IDE maps canonical PascalCase names (`WebButton`, `Integer`, `SQLiteDatabase`) to their official doc URLs. The extractor links type tokens that follow `As` in signatures.
 - **Per-project standalone sites.** Each `docs/api-published/<slug>/` is a complete static site with its own `index.html`, search, and `.nojekyll` — independently deployable to GitHub Pages or any static host.
+- **Hierarchy exclusions.** `-exclude-folder` matches Xojo `Folder` item names case-insensitively and follows ParentID relationships rather than filesystem paths. Each generated project directory is replaced during regeneration so stale pages from an excluded subtree cannot remain.
+- **Generated output is replaceable.** Every run removes and recreates `docs/api/<slug>/`. Do not store hand-written files in that generated project directory.
 
 ## Known limitations
 
