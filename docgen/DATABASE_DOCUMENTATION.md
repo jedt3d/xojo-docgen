@@ -140,5 +140,7 @@ creating any field-row DOM inside the canvas.
 - SQLite PRAGMA reference: <https://www.sqlite.org/pragma.html>
 - AntV X6 ports: <https://x6.antv.antgroup.com/en/tutorial/basic/port>
 - AntV X6 routers: <https://x6.antv.antgroup.com/en/api/registry/router>
+- Current dependency and license notices:
+  [`../THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md)
 - Reviewed implementation:
   `/Users/worajedt/Xojo Projects/model-toolkit/mcp-antv-x6/examples/sakila-er-diagram.html`

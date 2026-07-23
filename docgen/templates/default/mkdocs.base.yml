@@ -1,9 +1,3 @@
-# Standalone EEWeb editorial publishing theme.
-#
-# MkDocs is used only as the Markdown renderer and static-site build pipeline.
-# No Material template, layout, component, icon, palette, CSS, or JavaScript is
-# inherited. overrides/main.html owns the complete visible document.
-
 theme:
   name: null
   custom_dir: overrides

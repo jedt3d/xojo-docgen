@@ -27,7 +27,8 @@ Xojo is a cross-platform development tool for building Desktop, Web, and Mobile 
 ## Quick start
 
 ```bash
-# Prerequisites: Go 1.21+, Python 3.10+, MkDocs, mkdocs-literate-nav
+# Prerequisites: Go 1.21+, Python 3.10+, MkDocs,
+# mkdocs-literate-nav, and PyMdown Extensions
 
 # Build the extractor
 cd docgen
@@ -102,17 +103,25 @@ suggestions are never presented as database constraints. See
 
 Each published site is a complete static site — its own `index.html`, Landmark document payload, client search, `.nojekyll`, and assets. Deploy one to GitHub Pages or drop it on any static host.
 
+Installation, including the tested Python package versions, is documented in
+[`INSTALLATION.md`](INSTALLATION.md).
+
 ---
 
 ## Open source projects used
 
-`xojo-docgen` stands on the shoulders of excellent open source work. Full credit to these projects and their authors:
+`xojo-docgen` stands on the shoulders of excellent open source work. The table
+below lists the directly selected build and runtime projects. The complete
+compiled dependency closure, copyright notices, licenses, and historical
+acknowledgments are in
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
 
 | Project | Author | License | Purpose | URL |
 |---|---|---|---|---|
 | **Go** | The Go Authors | BSD-3-Clause | The extractor language | [go.dev](https://go.dev) |
 | **MkDocs** | Tom Christie | BSD-2-Clause | Static site generator for the docs | [mkdocs.org](https://www.mkdocs.org) |
-| **mkdocs-literate-nav** by Tim Schwenke | MIT | Auto-builds the nav from the file tree | [github.com/oprypin/mkdocs-literate-nav](https://github.com/oprypin/mkdocs-literate-nav) |
+| **mkdocs-literate-nav** | Oleh Prypin | MIT | Builds navigation from `SUMMARY.md` | [github.com/oprypin/mkdocs-literate-nav](https://github.com/oprypin/mkdocs-literate-nav) |
+| **PyMdown Extensions** | Isaac Muse | MIT with component notices | Markdown extensions used by the generated source | [facelessuser.github.io/pymdown-extensions](https://facelessuser.github.io/pymdown-extensions/) |
 | **Prism.js** | Lea Verou & James DiGioia | MIT | Client-side syntax highlighting | [prismjs.com](https://prismjs.com) |
 | **Xojo Prism grammar** | Worajedt Sitthidumrong | MIT | The Xojo language definition for Prism | [github.com/jedt3d/xojo-syntax-highlight-for-web](https://github.com/jedt3d/xojo-syntax-highlight-for-web) |
 | **modernc.org/sqlite** | modernc.org contributors | BSD-3-Clause | Pure-Go, read-only SQLite schema inspection | [pkg.go.dev/modernc.org/sqlite](https://pkg.go.dev/modernc.org/sqlite) |
@@ -120,6 +129,15 @@ Each published site is a complete static site — its own `index.html`, Landmark
 | **Dagre** | Dagre contributors | MIT | Directed graph layout for ER diagrams | [github.com/dagrejs/dagre](https://github.com/dagrejs/dagre) |
 
 The default Xojo-inspired primary color and documentation link map (`objects.inv`) are properties of Xojo, Inc.
+
+### Historical acknowledgment
+
+The initial DocGen publisher used **Material for MkDocs**, created by Martin
+Donath and contributors and licensed under MIT. It helped establish the first
+working documentation pipeline and visual prototype. Commit `4285b2f` replaced
+it with the standalone Landmark template. Material is not shipped, loaded, or
+required by the current implementation. See the historical notice in
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
 
 ---
 
@@ -148,6 +166,9 @@ The "Eddie's Electronics" sample applications under `sample_project/` are **© X
 xojo-docgen/
 ├── LICENSE                    MIT — the docgen tool
 ├── README.md                  this file
+├── INSTALLATION.md            canonical setup and migration guide
+├── THIRD_PARTY_NOTICES.md     current and historical dependency credit
+├── requirements-docs.txt      tested Python documentation toolchain
 ├── docgen/                    the Go extractor
 │   ├── go.mod
 │   ├── main.go                CLI: discover projects, loop, render
@@ -194,9 +215,12 @@ xojo-docgen/
 - **Xojo:** [xojo.com](https://www.xojo.com)
 - **MkDocs:** [mkdocs.org](https://www.mkdocs.org/)
 - **Xojo syntax highlight:** [github.com/jedt3d/xojo-syntax-highlight-for-web](https://github.com/jedt3d/xojo-syntax-highlight-for-web)
+- **Installation:** [INSTALLATION.md](INSTALLATION.md)
+- **Third-party notices:** [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
 
 ## Contributing
 
 Pull requests welcome. The extractor is pure Go; SQLite schema inspection uses
-the pure-Go `modernc.org/sqlite` driver. The design is documented in
+the pure-Go `modernc.org/sqlite` driver. Architecture notes are maintained in
+[`docgen/README.md`](docgen/README.md), with the database contract in
 [`docgen/DATABASE_DOCUMENTATION.md`](docgen/DATABASE_DOCUMENTATION.md).

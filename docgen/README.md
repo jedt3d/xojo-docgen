@@ -2,6 +2,11 @@
 
 A Go program that parses Xojo projects and emits per-project API documentation as Markdown, then publishes it through the canonical EEWeb editorial reader.
 
+> Lives under `tools/`, which is **git-ignored** from the Long Pepper repo.
+
+Install the Go and Python build toolchains from
+[`../INSTALLATION.md`](../INSTALLATION.md). MkDocs, mkdocs-literate-nav, and
+PyMdown Extensions are the current Python requirements.
 
 ## What it does
 
@@ -40,7 +45,7 @@ go build -o xojo-docgen .
 
 # Use a complete project-specific template (single-project mode only)
 ./xojo-docgen -single "../../Long Pepper.xojo_project" \
-  -template-dir ../../docs/templates/long-pepper -out ../../docs/api -v
+  -template-dir /path/to/custom-template -out ../../docs/api -v
 
 # Then build all sites
 cd ../..
@@ -107,6 +112,7 @@ tools/docgen/
 - **Generated output is replaceable.** Every run removes and recreates `docs/api/<slug>/`. Do not store hand-written files in that generated project directory.
 - **Templates are source assets.** The default theme is ordinary files under `templates/default`, not hard-coded Go. A custom template must contain the same required paths, including `overrides/main.html`, `hooks/editorial.py`, `javascripts/editorial.js`, `stylesheets/editorial.css`, and `stylesheets/primary-color.css`; the copied palette file is regenerated without changing the source template.
 - **No Material dependency.** MkDocs uses `theme.name: null`. The Landmark override owns the complete DOM, the build hook emits `data/documents.json`, and the reader never consumes Material templates, components, bundles, or search-index HTML.
+- **Historical credit is retained.** The first publisher used Material for MkDocs. It was replaced by the standalone Landmark template in commit `4285b2f`; see [`../THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md).
 - **The EEWeb design is canonical.** The default reader is the approved `eeweb-docs-editorial.sjedt.chatgpt.site` interface made project-agnostic. Project names, facts, entity groups, counts, sections, search results, links, and source bodies come from generated data rather than EEWeb constants.
 - **One color input, coherent variants.** `-primary-color` accepts only `R,G,B`. The generator mixes the base with white/black for its ramp and adjusts link accents until they meet a 4.5:1 contrast target on the light and dark surfaces.
 - **Cache-safe regeneration.** Each generated `mkdocs.yml` includes a deterministic content fingerprint. Landmark appends it to CSS, JavaScript, database payload, and document payload URLs so a normal browser refresh loads the current generation without stale theme or API content.
@@ -119,5 +125,9 @@ tools/docgen/
 
 - Standalone language `Enum` and ComputedProperty `Setter` are grammatically supported but not exercised by the sample fixtures.
 - The link map requires the Xojo IDE's `objects.inv`; use `-no-links` if absent.
-- MkDocs must be installed separately (see `docs/setup-guide.md`).
+- The MkDocs toolchain must be installed separately; use the pinned,
+  Material-free environment in [`../INSTALLATION.md`](../INSTALLATION.md).
 - Database extraction currently supports SQLite 3 files. Broken view definitions are documented with an inspection diagnostic rather than aborting the entire database, while unreadable table metadata remains a build error.
+
+Current and historical dependency credits are maintained in
+[`../THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md).

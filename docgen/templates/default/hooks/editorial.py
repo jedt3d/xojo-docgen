@@ -1,9 +1,4 @@
-"""Build the Landmark reader payload from MkDocs-rendered page HTML.
-
-MkDocs remains the Markdown compiler and search builder. The visible site does
-not consume a MkDocs theme DOM, and it does not depend on Material search-index
-HTML. This hook emits the stable document contract used by editorial.js.
-"""
+# Build the Landmark reader payload from MkDocs-rendered page HTML.
 
 from __future__ import annotations
 
