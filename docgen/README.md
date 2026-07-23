@@ -63,6 +63,7 @@ mkdocs build --strict -f /path/to/output/api/myapp/mkdocs.yml
 | `-include-private` | true | Include private members in the generated documentation. |
 | `-publish-prep` | false | Write `.nojekyll` into each `docs/api-published/<slug>/` for GitHub Pages readiness. |
 | `-v` | false | Verbose output. |
+| `-version` | false | Print the `xojo-docgen` version and exit. |
 
 ## Project layout
 

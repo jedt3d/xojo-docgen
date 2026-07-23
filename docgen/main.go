@@ -37,9 +37,15 @@ func main() {
 		excludeFolder  = flag.String("exclude-folder", "", "comma-separated Xojo Folder item names whose complete manifest subtrees are omitted.")
 		templateDir    = flag.String("template-dir", "", "complete template directory for -single; defaults to templates/default beside xojo-docgen.")
 		primaryColor   = flag.String("primary-color", defaultPrimaryColor, "primary theme color as R,G,B; related shades and accessible accents are generated automatically.")
+		showVersion    = flag.Bool("version", false, "print the xojo-docgen version and exit.")
 	)
 	flag.Var(&databasePaths, "database", "SQLite database file to document (repeatable; path is relative to the .xojo_project; requires -single).")
 	flag.Parse()
+
+	if *showVersion {
+		fmt.Printf("xojo-docgen %s\n", version)
+		return
+	}
 
 	if *templateDir != "" && *single == "" {
 		fmt.Fprintln(os.Stderr, "error: -template-dir requires -single so a project template cannot be applied to every project accidentally")

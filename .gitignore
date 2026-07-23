@@ -1,6 +1,9 @@
 # Compiled binary
 docgen/xojo-docgen
+docgen/xojo-docgen.exe
 docgen/dist/
+dist/
+release/
 
 # macOS
 .DS_Store
