@@ -1,8 +1,6 @@
 # xojo-docgen
 
-A Go program that parses Xojo projects and emits per-project API documentation as Markdown, then publishes it through the canonical EEWeb editorial reader.
-
-> Lives under `tools/`, which is **git-ignored** from the Long Pepper repo.
+A Go program that parses Xojo projects and emits per-project API documentation as Markdown, then publishes it through the standalone Landmark reader.
 
 Install the Go and Python build toolchains from
 [`../INSTALLATION.md`](../INSTALLATION.md). MkDocs, mkdocs-literate-nav, and
@@ -15,48 +13,45 @@ PyMdown Extensions are the current Python requirements.
 3. **Extracts** a structured model: classes, modules, interfaces, pages, and their members (methods, properties, computed properties, constants, enums, delegates, event definitions, event handlers) — using the `#tag` layer only to *structure*, and rendering the real VB/Xojo code as the display focus.
 4. **Links** type references to the official Xojo documentation via the shipped `objects.inv` Sphinx inventory (1,400+ API pages).
 5. **Optionally inspects** explicitly selected SQLite files in read-only mode and emits a data dictionary plus ER relationship model.
-6. **Copies** the EEWeb editorial template, emits its project/entity/database manifests, generates its primary-color palette, and writes Markdown source into `docs/api/<slug>/content/` plus a per-project `mkdocs.yml`.
+6. **Copies** the Landmark template, emits its project/entity/database manifests, generates its primary-color palette, and writes Markdown source into the selected output directory plus a per-project `mkdocs.yml`.
 7. `mkdocs build` renders Markdown, runs the Landmark payload hook, and publishes a **standalone, deploy-ready static site** at `docs/api-published/<slug>/`.
 
 ## Build & run
 
 ```bash
-# Build the binary
-cd tools/docgen
+# Build the binary from the repository root
+cd docgen
 go build -o xojo-docgen .
 
-# Generate Markdown for all sample projects (under tools/sample_project/)
-./xojo-docgen -root ../../tools/sample_project -out ../../docs/api -v
-
-# Or one project
-./xojo-docgen -single ../../tools/sample_project/ee_web/EEWeb.xojo_project -out ../../docs/api -v
+# Generate one project
+./xojo-docgen -single /path/to/MyApp.xojo_project \
+  -out /path/to/output/api -v
 
 # Add a project-relative SQLite database schema (repeatable)
-./xojo-docgen -single "../../dependencies/XjMVVM/mvvm.xojo_project" \
-  -database data/notes.sqlite -out ../../docs/api -v
+./xojo-docgen -single /path/to/MyApp.xojo_project \
+  -database data/app.sqlite -out /path/to/output/api -v
 
 # Omit Xojo project Folder items and their complete ParentID subtrees
-./xojo-docgen -single "../../Long Pepper.xojo_project" \
-  -exclude-folder "dependencies,vendor" -out ../../docs/api -v
+./xojo-docgen -single /path/to/MyApp.xojo_project \
+  -exclude-folder "dependencies,vendor" -out /path/to/output/api -v
 
 # Use another project color (strict decimal RGB)
-./xojo-docgen -root ../sample_project -out ../../docs/api \
+./xojo-docgen -root /path/to/projects -out /path/to/output/api \
   -primary-color "122,31,43" -v
 
 # Use a complete project-specific template (single-project mode only)
-./xojo-docgen -single "../../Long Pepper.xojo_project" \
-  -template-dir /path/to/custom-template -out ../../docs/api -v
+./xojo-docgen -single /path/to/MyApp.xojo_project \
+  -template-dir /path/to/custom-template -out /path/to/output/api -v
 
-# Then build all sites
-cd ../..
-make docs
+# Then build one generated site
+mkdocs build --strict -f /path/to/output/api/myapp/mkdocs.yml
 ```
 
 ## Flags
 
 | Flag | Default | Purpose |
 |---|---|---|
-| `-root <dir>` | `tools/sample_project` | Root to scan for `*.xojo_project` (recursive). Each becomes a separate doc set. |
+| `-root <dir>` | — | Root to scan for `*.xojo_project` recursively. Each becomes a separate doc set. Required when `-single` is absent. |
 | `-single <file>` | — | Process just one `.xojo_project`. |
 | `-database <file>` | — | SQLite database to document. Repeatable, resolved relative to the `.xojo_project`, and restricted to `-single`. |
 | `-exclude-folder <names>` | — | Omit comma-separated Xojo `Folder` names (case-insensitive) and their complete ParentID subtrees. |
@@ -72,7 +67,7 @@ make docs
 ## Project layout
 
 ```
-tools/docgen/
+docgen/
 ├── go.mod                  Go module
 ├── main.go                 CLI: discover projects, loop, render
 ├── manifest.go             parse .xojo_project (config + item tree)
@@ -92,7 +87,7 @@ tools/docgen/
 ├── database_render.go      database payload and searchable Markdown
 ├── database_test.go        schema extraction and inference tests
 ├── DATABASE_DOCUMENTATION.md  database feature contract and research
-├── templates/default/      canonical EEWeb editorial publishing template
+├── templates/default/      canonical Landmark publishing template
 │   ├── mkdocs.base.yml
 │   ├── assets/
 │   ├── hooks/
@@ -113,7 +108,7 @@ tools/docgen/
 - **Templates are source assets.** The default theme is ordinary files under `templates/default`, not hard-coded Go. A custom template must contain the same required paths, including `overrides/main.html`, `hooks/editorial.py`, `javascripts/editorial.js`, `stylesheets/editorial.css`, and `stylesheets/primary-color.css`; the copied palette file is regenerated without changing the source template.
 - **No Material dependency.** MkDocs uses `theme.name: null`. The Landmark override owns the complete DOM, the build hook emits `data/documents.json`, and the reader never consumes Material templates, components, bundles, or search-index HTML.
 - **Historical credit is retained.** The first publisher used Material for MkDocs. It was replaced by the standalone Landmark template in commit `4285b2f`; see [`../THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md).
-- **The EEWeb design is canonical.** The default reader is the approved `eeweb-docs-editorial.sjedt.chatgpt.site` interface made project-agnostic. Project names, facts, entity groups, counts, sections, search results, links, and source bodies come from generated data rather than EEWeb constants.
+- **Landmark is project-agnostic.** Project names, facts, entity groups, counts, sections, search results, links, and source bodies come from generated data rather than example-project constants.
 - **One color input, coherent variants.** `-primary-color` accepts only `R,G,B`. The generator mixes the base with white/black for its ramp and adjusts link accents until they meet a 4.5:1 contrast target on the light and dark surfaces.
 - **Cache-safe regeneration.** Each generated `mkdocs.yml` includes a deterministic content fingerprint. Landmark appends it to CSS, JavaScript, database payload, and document payload URLs so a normal browser refresh loads the current generation without stale theme or API content.
 - **Explicit database scope.** Database discovery is never recursive. Each `-database` path is associated with one `-single` project, opened with SQLite `mode=ro` and `PRAGMA query_only`, and represented as schema metadata only.
@@ -123,7 +118,7 @@ tools/docgen/
 
 ## Known limitations
 
-- Standalone language `Enum` and ComputedProperty `Setter` are grammatically supported but not exercised by the sample fixtures.
+- Standalone language `Enum` and ComputedProperty `Setter` are grammatically supported but do not yet have dedicated repository fixtures.
 - The link map requires the Xojo IDE's `objects.inv`; use `-no-links` if absent.
 - The MkDocs toolchain must be installed separately; use the pinned,
   Material-free environment in [`../INSTALLATION.md`](../INSTALLATION.md).

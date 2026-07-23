@@ -36,7 +36,7 @@ func parseManifest(path string) (config map[string]string, items []ManifestItem,
 		if eq := strings.IndexByte(line, '='); eq > 0 {
 			key := strings.TrimSpace(line[:eq])
 			val := strings.TrimSpace(line[eq+1:])
-			// Some config values themselves contain ';' (e.g. AppIcon=Long Pepper.xojo_resources;&h0).
+			// Some config values themselves contain ';' (e.g. AppIcon=MyApp.xojo_resources;&h0).
 			// They are NOT item lines because the part before '=' is a known config key with no ';'.
 			config[key] = val
 		}

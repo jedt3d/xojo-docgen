@@ -1,0 +1,345 @@
+{
+  "databases": [
+    {
+      "name": "EddiesElectronics",
+      "slug": "eddieselectronics",
+      "dialect": "sqlite",
+      "source": "EddiesElectronics.sqlite",
+      "fileSize": 3829760,
+      "userVersion": 0,
+      "tables": [
+        {
+          "name": "Customers",
+          "sql": "CREATE TABLE [Customers] (\r  [ID] INTEGER NOT NULL,\r  [FirstName] TEXT,\r  [LastName] TEXT,\r  [Address] TEXT,\r  [City] TEXT,\r  [State] TEXT,\r  [Zip] TEXT,\r  [Phone] TEXT,\r  [Email] TEXT,\r  [Photo] BLOB,\r  [Taxable] INTEGER, \r  PRIMARY KEY ([ID])\r)",
+          "strict": false,
+          "withoutRowId": false,
+          "virtual": false,
+          "columns": [
+            {
+              "position": 0,
+              "name": "ID",
+              "type": "INTEGER",
+              "nullable": false,
+              "primaryKey": 1,
+              "unique": false,
+              "autoIncrement": false,
+              "hidden": false
+            },
+            {
+              "position": 1,
+              "name": "FirstName",
+              "type": "TEXT",
+              "nullable": true,
+              "primaryKey": 0,
+              "unique": false,
+              "autoIncrement": false,
+              "hidden": false
+            },
+            {
+              "position": 2,
+              "name": "LastName",
+              "type": "TEXT",
+              "nullable": true,
+              "primaryKey": 0,
+              "unique": false,
+              "autoIncrement": false,
+              "hidden": false
+            },
+            {
+              "position": 3,
+              "name": "Address",
+              "type": "TEXT",
+              "nullable": true,
+              "primaryKey": 0,
+              "unique": false,
+              "autoIncrement": false,
+              "hidden": false
+            },
+            {
+              "position": 4,
+              "name": "City",
+              "type": "TEXT",
+              "nullable": true,
+              "primaryKey": 0,
+              "unique": false,
+              "autoIncrement": false,
+              "hidden": false
+            },
+            {
+              "position": 5,
+              "name": "State",
+              "type": "TEXT",
+              "nullable": true,
+              "primaryKey": 0,
+              "unique": false,
+              "autoIncrement": false,
+              "hidden": false
+            },
+            {
+              "position": 6,
+              "name": "Zip",
+              "type": "TEXT",
+              "nullable": true,
+              "primaryKey": 0,
+              "unique": false,
+              "autoIncrement": false,
+              "hidden": false
+            },
+            {
+              "position": 7,
+              "name": "Phone",
+              "type": "TEXT",
+              "nullable": true,
+              "primaryKey": 0,
+              "unique": false,
+              "autoIncrement": false,
+              "hidden": false
+            },
+            {
+              "position": 8,
+              "name": "Email",
+              "type": "TEXT",
+              "nullable": true,
+              "primaryKey": 0,
+              "unique": false,
+              "autoIncrement": false,
+              "hidden": false
+            },
+            {
+              "position": 9,
+              "name": "Photo",
+              "type": "BLOB",
+              "nullable": true,
+              "primaryKey": 0,
+              "unique": false,
+              "autoIncrement": false,
+              "hidden": false
+            },
+            {
+              "position": 10,
+              "name": "Taxable",
+              "type": "INTEGER",
+              "nullable": true,
+              "primaryKey": 0,
+              "unique": false,
+              "autoIncrement": false,
+              "hidden": false
+            }
+          ],
+          "indexes": [],
+          "foreignKeys": []
+        },
+        {
+          "name": "InvoiceItems",
+          "sql": "CREATE TABLE [InvoiceItems] (\r  [ID] INTEGER NOT NULL,\r  [InvoiceNo] INTEGER,\r  [ProductCode] TEXT,\r  [Quantity] INTEGER, \r  PRIMARY KEY ([ID])\r)",
+          "strict": false,
+          "withoutRowId": false,
+          "virtual": false,
+          "columns": [
+            {
+              "position": 0,
+              "name": "ID",
+              "type": "INTEGER",
+              "nullable": false,
+              "primaryKey": 1,
+              "unique": false,
+              "autoIncrement": false,
+              "hidden": false
+            },
+            {
+              "position": 1,
+              "name": "InvoiceNo",
+              "type": "INTEGER",
+              "nullable": true,
+              "primaryKey": 0,
+              "unique": false,
+              "autoIncrement": false,
+              "hidden": false
+            },
+            {
+              "position": 2,
+              "name": "ProductCode",
+              "type": "TEXT",
+              "nullable": true,
+              "primaryKey": 0,
+              "unique": false,
+              "autoIncrement": false,
+              "hidden": false
+            },
+            {
+              "position": 3,
+              "name": "Quantity",
+              "type": "INTEGER",
+              "nullable": true,
+              "primaryKey": 0,
+              "unique": false,
+              "autoIncrement": false,
+              "hidden": false
+            }
+          ],
+          "indexes": [],
+          "foreignKeys": []
+        },
+        {
+          "name": "Invoices",
+          "sql": "CREATE TABLE [Invoices] (\r  [InvoiceNo] INTEGER NOT NULL,\r  [CustomerID] INTEGER,\r  [InvoiceDate] TEXT,\r  [InvoiceAmount] FLOAT, \r  PRIMARY KEY ([InvoiceNo])\r)",
+          "strict": false,
+          "withoutRowId": false,
+          "virtual": false,
+          "columns": [
+            {
+              "position": 0,
+              "name": "InvoiceNo",
+              "type": "INTEGER",
+              "nullable": false,
+              "primaryKey": 1,
+              "unique": false,
+              "autoIncrement": false,
+              "hidden": false
+            },
+            {
+              "position": 1,
+              "name": "CustomerID",
+              "type": "INTEGER",
+              "nullable": true,
+              "primaryKey": 0,
+              "unique": false,
+              "autoIncrement": false,
+              "hidden": false
+            },
+            {
+              "position": 2,
+              "name": "InvoiceDate",
+              "type": "TEXT",
+              "nullable": true,
+              "primaryKey": 0,
+              "unique": false,
+              "autoIncrement": false,
+              "hidden": false
+            },
+            {
+              "position": 3,
+              "name": "InvoiceAmount",
+              "type": "FLOAT",
+              "nullable": true,
+              "primaryKey": 0,
+              "unique": false,
+              "autoIncrement": false,
+              "hidden": false
+            }
+          ],
+          "indexes": [],
+          "foreignKeys": []
+        },
+        {
+          "name": "Products",
+          "sql": "CREATE TABLE [Products] (\r  [Code] TEXT NOT NULL,\r  [Name] TEXT,\r  [Price] FLOAT, \r  PRIMARY KEY ([Code])\r)",
+          "strict": false,
+          "withoutRowId": false,
+          "virtual": false,
+          "columns": [
+            {
+              "position": 0,
+              "name": "Code",
+              "type": "TEXT",
+              "nullable": false,
+              "primaryKey": 1,
+              "unique": true,
+              "autoIncrement": false,
+              "hidden": false
+            },
+            {
+              "position": 1,
+              "name": "Name",
+              "type": "TEXT",
+              "nullable": true,
+              "primaryKey": 0,
+              "unique": false,
+              "autoIncrement": false,
+              "hidden": false
+            },
+            {
+              "position": 2,
+              "name": "Price",
+              "type": "FLOAT",
+              "nullable": true,
+              "primaryKey": 0,
+              "unique": false,
+              "autoIncrement": false,
+              "hidden": false
+            }
+          ],
+          "indexes": [
+            {
+              "name": "sqlite_autoindex_Products_1",
+              "unique": true,
+              "origin": "pk",
+              "partial": false,
+              "columns": [
+                {
+                  "position": 0,
+                  "tableRank": 0,
+                  "name": "Code",
+                  "descending": false,
+                  "collation": "BINARY",
+                  "key": true
+                },
+                {
+                  "position": 1,
+                  "tableRank": -1,
+                  "descending": false,
+                  "collation": "BINARY",
+                  "key": false
+                }
+              ]
+            }
+          ],
+          "foreignKeys": []
+        }
+      ],
+      "views": [],
+      "triggers": [],
+      "relationships": [
+        {
+          "id": "suggested:InvoiceItems:InvoiceNo",
+          "fromTable": "InvoiceItems",
+          "fromColumns": [
+            "InvoiceNo"
+          ],
+          "targetTable": "Invoices",
+          "targetColumns": [
+            "InvoiceNo"
+          ],
+          "origin": "suggested",
+          "evidence": "Column InvoiceNo uniquely matches table Invoices and primary key InvoiceNo by name and type."
+        },
+        {
+          "id": "suggested:InvoiceItems:ProductCode",
+          "fromTable": "InvoiceItems",
+          "fromColumns": [
+            "ProductCode"
+          ],
+          "targetTable": "Products",
+          "targetColumns": [
+            "Code"
+          ],
+          "origin": "suggested",
+          "evidence": "Column ProductCode uniquely matches table Products and primary key Code by name and type."
+        },
+        {
+          "id": "suggested:Invoices:CustomerID",
+          "fromTable": "Invoices",
+          "fromColumns": [
+            "CustomerID"
+          ],
+          "targetTable": "Customers",
+          "targetColumns": [
+            "ID"
+          ],
+          "origin": "suggested",
+          "evidence": "Column CustomerID uniquely matches table Customers and primary key ID by name and type."
+        }
+      ]
+    }
+  ]
+}

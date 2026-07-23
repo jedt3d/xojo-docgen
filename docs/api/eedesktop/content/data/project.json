@@ -1,0 +1,170 @@
+{
+  "project": {
+    "name": "EEDesktop",
+    "slug": "eedesktop",
+    "type": "Desktop",
+    "xojo": "2026.02",
+    "version": "1.0.0",
+    "bundleId": "com.example.eedesktop"
+  },
+  "entities": [
+    {
+      "name": "AboutWindow",
+      "localName": "AboutWindow",
+      "kind": "Page",
+      "itemType": "DesktopWindow",
+      "members": 0,
+      "superName": "DesktopWindow",
+      "location": "pages/aboutwindow/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "App",
+      "localName": "App",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 6,
+      "superName": "DesktopApplication",
+      "location": "classes/app/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    },
+    {
+      "name": "ChartWindow",
+      "localName": "ChartWindow",
+      "kind": "Page",
+      "itemType": "DesktopWindow",
+      "members": 0,
+      "superName": "DesktopWindow",
+      "location": "pages/chartwindow/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "CustomerDetailsToolbar",
+      "localName": "CustomerDetailsToolbar",
+      "kind": "Toolbar",
+      "itemType": "DesktopToolbar",
+      "members": 0,
+      "superName": "—",
+      "location": "toolbars/customerdetailstoolbar/",
+      "navigation": {
+        "category": "misc",
+        "section": "Toolbars"
+      }
+    },
+    {
+      "name": "CustomerDetailsWindow",
+      "localName": "CustomerDetailsWindow",
+      "kind": "Page",
+      "itemType": "DesktopWindow",
+      "members": 0,
+      "superName": "DesktopWindow",
+      "location": "pages/customerdetailswindow/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "DataPoint",
+      "localName": "DataPoint",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 7,
+      "superName": "—",
+      "location": "classes/datapoint/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    },
+    {
+      "name": "InvoiceDetailsWindow",
+      "localName": "InvoiceDetailsWindow",
+      "kind": "Page",
+      "itemType": "DesktopWindow",
+      "members": 0,
+      "superName": "DesktopWindow",
+      "location": "pages/invoicedetailswindow/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "MainMenuBar",
+      "localName": "MainMenuBar",
+      "kind": "Menu Bar",
+      "itemType": "MenuBar",
+      "members": 0,
+      "superName": "—",
+      "location": "menus/mainmenubar/",
+      "navigation": {
+        "category": "misc",
+        "section": "Menu Bars"
+      }
+    },
+    {
+      "name": "OrdersDatabase",
+      "localName": "OrdersDatabase",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 18,
+      "superName": "SQLiteDatabase",
+      "location": "classes/ordersdatabase/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    },
+    {
+      "name": "SelectablePopupMenu",
+      "localName": "SelectablePopupMenu",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 3,
+      "superName": "DesktopPopupMenu",
+      "location": "classes/selectablepopupmenu/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    },
+    {
+      "name": "Strings",
+      "localName": "Strings",
+      "kind": "Module",
+      "itemType": "Module",
+      "members": 1,
+      "superName": "—",
+      "location": "classes/strings/",
+      "module": "Strings",
+      "navigation": {
+        "category": "library",
+        "section": "Library"
+      }
+    }
+  ],
+  "databases": [
+    {
+      "name": "EddiesElectronics",
+      "slug": "eddieselectronics",
+      "dialect": "sqlite",
+      "source": "EddiesElectronics.sqlite",
+      "tables": 4,
+      "columns": 22,
+      "relationships": 3,
+      "views": 0,
+      "triggers": 0,
+      "location": "database/eddieselectronics/dictionary/"
+    }
+  ]
+}

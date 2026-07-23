@@ -1,0 +1,38 @@
+{
+  "project": {
+    "name": "SendingEmail",
+    "slug": "sendingemail",
+    "type": "Console",
+    "xojo": "2026.02",
+    "version": "1.0.0",
+    "bundleId": "com.example.sendmail"
+  },
+  "entities": [
+    {
+      "name": "App",
+      "localName": "App",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 3,
+      "superName": "ConsoleApplication",
+      "location": "classes/app/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    },
+    {
+      "name": "SMTP",
+      "localName": "SMTP",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 8,
+      "superName": "SMTPSecureSocket",
+      "location": "classes/smtp/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    }
+  ]
+}

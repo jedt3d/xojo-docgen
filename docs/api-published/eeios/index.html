@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <title>EEiOS — API</title>
+    <link rel="stylesheet" href="./stylesheets/primary-color.css?v=ec82b71cea764351">
+    <link rel="stylesheet" href="./stylesheets/editorial.css?v=ec82b71cea764351">
+    <link rel="stylesheet" href="./vendor/antv-x6-2.19.2.css?v=ec82b71cea764351">
+  </head>
+  <body>
+    <main class="site-shell" id="site-shell">
+      <header class="topbar">
+        <button class="menu-button" id="menu-button" type="button" aria-label="Toggle documentation sidebar">
+          <span></span><span></span>
+        </button>
+        <button class="brand" id="brand-button" type="button" aria-label="Documentation home">
+          <span class="brand-mark" id="brand-mark">XO</span>
+          <span class="brand-copy">
+            <strong id="brand-name">Xojo API</strong>
+            <small id="brand-target">Project documentation</small>
+          </span>
+        </button>
+        <nav class="top-links" id="top-links" aria-label="Primary"></nav>
+        <div class="top-actions">
+          <button class="search-trigger" id="search-trigger" type="button" aria-label="Search documentation">
+            <span class="search-label">Search documentation</span>
+            <span class="search-icon" aria-hidden="true"></span>
+            <kbd>⌘ K</kbd>
+          </button>
+          <button class="theme-button" id="theme-button" type="button" aria-label="Use dark theme" title="Use dark theme">
+            <span aria-hidden="true">☾</span>
+          </button>
+        </div>
+      </header>
+
+      <aside class="sidebar" id="sidebar">
+        <div class="project-facts">
+          <p id="project-version">Xojo project</p>
+          <dl id="project-facts"></dl>
+        </div>
+        <div id="project-navigation"></div>
+      </aside>
+
+      <div class="content-frame">
+        <div id="overview-view">
+          <section class="hero">
+            <div class="hero-copy">
+              <p class="hero-kicker" id="hero-kicker">Xojo API</p>
+              <h1 id="hero-title">The architecture behind a complete application.</h1>
+              <figure class="mobile-hero-visual">
+                <img src="./assets/featured_portrait.png" alt="Mobile documentation preview">
+                <figcaption>Mobile capture placeholder</figcaption>
+              </figure>
+              <p class="hero-intro" id="hero-intro"></p>
+              <div class="hero-actions">
+                <button class="primary-action" id="browse-entities" type="button">Browse entities</button>
+                <button class="secondary-action" id="open-first-entity" type="button">Open first entity</button>
+              </div>
+            </div>
+            <figure class="hero-visual">
+              <img src="./assets/featured.png" id="featured-image" alt="Running Xojo project">
+              <figcaption>
+                <span>Running project</span>
+                <strong id="featured-caption">Generated Xojo API documentation</strong>
+              </figcaption>
+            </figure>
+          </section>
+
+          <section class="marquee" aria-label="Framework types used by this project">
+            <div class="marquee-track" id="marquee-track"></div>
+          </section>
+
+          <section class="interest-section entity-bento" id="entity-bento">
+            <div class="section-heading">
+              <h2>One project, readable as a system.</h2>
+              <p>Project facts and API structure are placed where they help orientation, not buried in decoration.</p>
+            </div>
+            <div class="bento-grid">
+              <article class="bento-main">
+                <div class="bento-title">
+                  <h3 id="entity-count">Documented entities</h3>
+                  <p>Move from application lifecycle to concrete controls without losing context.</p>
+                </div>
+                <div class="entity-columns" id="recent-entities"></div>
+              </article>
+              <article class="metric-card">
+                <strong id="surface-count">0</strong>
+                <h3>Interface surfaces</h3>
+                <p>Windows, pages, dialogs, containers, menus, and toolbars.</p>
+              </article>
+              <article class="metric-card metric-dark">
+                <strong id="member-count">0</strong>
+                <h3>Documented members</h3>
+                <p>Methods, properties, events, and full source bodies remain searchable.</p>
+              </article>
+            </div>
+          </section>
+
+          <section class="accordion-section">
+            <div class="section-heading compact">
+              <h2>Navigate by responsibility.</h2>
+              <p>Open a project layer, then inspect any generated entity.</p>
+            </div>
+            <div class="horizontal-accordion" id="kind-accordion"></div>
+          </section>
+
+          <section class="word-reveal">
+            <p id="word-reveal"></p>
+          </section>
+
+          <section class="architecture-story">
+            <div class="story-heading">
+              <p>Architecture in source</p>
+              <h2>Read the system as it runs.</h2>
+              <span>A guided path through representative pieces of the generated API.</span>
+            </div>
+            <div class="story-list" id="source-stories"></div>
+          </section>
+
+          <section class="action-section">
+            <p>Continue with the real API surface.</p>
+            <h2>Every generated entity remains one search away.</h2>
+            <div id="action-links"></div>
+          </section>
+
+          <footer>
+            <span id="footer-project">Xojo API</span>
+            <span>Editorial documentation theme</span>
+          </footer>
+        </div>
+
+        <article class="entity-reader" id="entity-view" hidden>
+          <button class="back-link" id="back-button" type="button">Back to overview</button>
+          <header class="entity-header">
+            <div>
+              <p id="entity-kind">Class</p>
+              <h1 id="entity-name">Entity</h1>
+            </div>
+            <dl>
+              <div><dt>Members</dt><dd id="entity-members">0</dd></div>
+              <div><dt>Target</dt><dd id="entity-target">Xojo</dd></div>
+            </dl>
+          </header>
+          <div class="entity-summary generated-content" id="entity-summary"></div>
+          <div class="reader-layout">
+            <div class="reader-content" id="reader-content"></div>
+            <aside class="reader-toc" id="reader-toc">
+              <p>On this page</p>
+            </aside>
+          </div>
+        </article>
+
+        <article class="database-reader" id="database-view" hidden>
+          <button class="back-link" id="database-back-button" type="button">Back to overview</button>
+          <header class="database-header">
+            <div>
+              <p id="database-kind">SQLite database</p>
+              <h1 id="database-name">Database</h1>
+              <span id="database-source"></span>
+            </div>
+            <dl id="database-stats"></dl>
+          </header>
+          <nav class="database-tabs" id="database-tabs" aria-label="Database documentation">
+            <button type="button" data-database-tab="dictionary">Data dictionary</button>
+            <button type="button" data-database-tab="diagram">ER diagram</button>
+          </nav>
+          <section id="database-content" aria-live="polite"></section>
+        </article>
+      </div>
+
+      <div class="search-backdrop" id="search-backdrop" role="presentation" hidden>
+        <section class="search-dialog" role="dialog" aria-modal="true" aria-label="Search documentation">
+          <div class="search-field">
+            <span>Find</span>
+            <input id="search-input" placeholder="Class, method, control, or type">
+            <kbd>Esc</kbd>
+          </div>
+          <div class="search-results" id="search-results"></div>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      window.__XOJO_DOCGEN_BASE__ = ".";
+      window.__XOJO_DOCGEN_ASSET_VERSION__ = "ec82b71cea764351";
+    </script>
+    <script src="./javascripts/prism.js?v=ec82b71cea764351"></script>
+    <script src="./javascripts/xojo.prism.js?v=ec82b71cea764351"></script>
+    <script src="./javascripts/database.js?v=ec82b71cea764351"></script>
+    <script src="./javascripts/editorial.js?v=ec82b71cea764351"></script>
+  </body>
+</html>

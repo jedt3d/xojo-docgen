@@ -51,15 +51,9 @@ func main() {
 	}
 
 	if *root == "" && *single == "" {
-		// Default to the sample_project dir if present.
-		candidate := filepath.Join("tools", "sample_project")
-		if _, err := os.Stat(candidate); err == nil {
-			*root = candidate
-		} else {
-			fmt.Fprintln(os.Stderr, "error: provide -root <dir> or -single <project.xojo_project>")
-			flag.Usage()
-			os.Exit(2)
-		}
+		fmt.Fprintln(os.Stderr, "error: provide -root <dir> or -single <project.xojo_project>")
+		flag.Usage()
+		os.Exit(2)
 	}
 
 	selectedPrimaryColor, err := parsePrimaryColor(*primaryColor)

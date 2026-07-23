@@ -83,11 +83,14 @@ The complete license text for each Go module is included in that module's
 source distribution and Go module cache. Binary distributors should include
 those texts with their release artifacts.
 
-## Xojo sample projects and documentation data
+## Generated Xojo example documentation
 
-The Eddie's Electronics sample projects under `sample_project/` are copyright
-Xojo, Inc. They are test fixtures and are not covered by DocGen's MIT license.
-See [`sample_project/NOTICE`](sample_project/NOTICE).
+The repository includes generated API and published-site snapshots under
+`docs/` that were produced while testing DocGen with Xojo example projects,
+including Eddie's Electronics. The original Xojo project files are not
+distributed here. Example-project names and generated material derived from
+those projects remain attributable to Xojo, Inc. and are not covered by
+DocGen's MIT license.
 
 The `objects.inv` link map is read from a user's Xojo installation. It is not
 stored in this repository or copied into generated sites. Xojo names,

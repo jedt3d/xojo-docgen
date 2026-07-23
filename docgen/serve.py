@@ -3,10 +3,11 @@
 
 lvh.me resolves to 127.0.0.1, so http://<project>.lvh.me:<port>/ reaches this
 server, which serves docs/api-published/<project>/ based on the first label of
-the Host header. e.g. http://ee_web.lvh.me:8910/ -> docs/api-published/eeweb/.
+the Host header. For example, http://myapp.lvh.me:8910/ serves
+docs/api-published/myapp/.
 
 Usage:
-    python3 tools/docgen/serve.py [--port 8910] [--root docs/api-published]
+    python3 docgen/serve.py [--port 8910] [--root docs/api-published]
 """
 import argparse
 import http.server
@@ -26,7 +27,7 @@ def main():
 
     root = Path(args.root).resolve()
     if not root.is_dir():
-        sys.exit(f"error: {root} does not exist. Run 'make docs' first.")
+        sys.exit(f"error: {root} does not exist. Generate and build documentation first.")
 
     class Handler(http.server.SimpleHTTPRequestHandler):
         def translate_path(self, path):

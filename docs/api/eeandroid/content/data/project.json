@@ -1,0 +1,194 @@
+{
+  "project": {
+    "name": "EEAndroid",
+    "slug": "eeandroid",
+    "type": "Mobile",
+    "xojo": "2026.02",
+    "version": "1.0.0",
+    "bundleId": "com.xojo.eddieselectronics"
+  },
+  "entities": [
+    {
+      "name": "AboutScreen",
+      "localName": "AboutScreen",
+      "kind": "Page",
+      "itemType": "MobileScreen",
+      "members": 0,
+      "superName": "MobileScreen",
+      "location": "pages/aboutscreen/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "AboutTabletScreen",
+      "localName": "AboutTabletScreen",
+      "kind": "Page",
+      "itemType": "MobileScreen",
+      "members": 0,
+      "superName": "MobileScreen",
+      "location": "pages/abouttabletscreen/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "App",
+      "localName": "App",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 1,
+      "superName": "MobileApplication",
+      "location": "classes/app/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    },
+    {
+      "name": "Customer",
+      "localName": "Customer",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 15,
+      "superName": "—",
+      "location": "classes/customer/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    },
+    {
+      "name": "CustomerContainer",
+      "localName": "CustomerContainer",
+      "kind": "Page",
+      "itemType": "MobileContainer",
+      "members": 0,
+      "superName": "MobileContainer",
+      "location": "pages/customercontainer/",
+      "navigation": {
+        "category": "class",
+        "section": "Containers"
+      }
+    },
+    {
+      "name": "CustomerDetailContainer",
+      "localName": "CustomerDetailContainer",
+      "kind": "Page",
+      "itemType": "MobileContainer",
+      "members": 0,
+      "superName": "MobileContainer",
+      "location": "pages/customerdetailcontainer/",
+      "navigation": {
+        "category": "class",
+        "section": "Containers"
+      }
+    },
+    {
+      "name": "CustomerDetailScreen",
+      "localName": "CustomerDetailScreen",
+      "kind": "Page",
+      "itemType": "MobileScreen",
+      "members": 0,
+      "superName": "MobileScreen",
+      "location": "pages/customerdetailscreen/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "CustomerScreen",
+      "localName": "CustomerScreen",
+      "kind": "Page",
+      "itemType": "MobileScreen",
+      "members": 0,
+      "superName": "MobileScreen",
+      "location": "pages/customerscreen/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "CustomerTabletScreen",
+      "localName": "CustomerTabletScreen",
+      "kind": "Page",
+      "itemType": "MobileScreen",
+      "members": 0,
+      "superName": "MobileScreen",
+      "location": "pages/customertabletscreen/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "Invoice",
+      "localName": "Invoice",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 2,
+      "superName": "—",
+      "location": "classes/invoice/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    },
+    {
+      "name": "InvoiceScreen",
+      "localName": "InvoiceScreen",
+      "kind": "Page",
+      "itemType": "MobileScreen",
+      "members": 0,
+      "superName": "MobileScreen",
+      "location": "pages/invoicescreen/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "InvoicesContainer",
+      "localName": "InvoicesContainer",
+      "kind": "Page",
+      "itemType": "MobileContainer",
+      "members": 0,
+      "superName": "MobileContainer",
+      "location": "pages/invoicescontainer/",
+      "navigation": {
+        "category": "class",
+        "section": "Containers"
+      }
+    },
+    {
+      "name": "SalesChart",
+      "localName": "SalesChart",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 2,
+      "superName": "MobileChart",
+      "location": "classes/saleschart/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    },
+    {
+      "name": "SalesScreen",
+      "localName": "SalesScreen",
+      "kind": "Page",
+      "itemType": "MobileScreen",
+      "members": 0,
+      "superName": "MobileScreen",
+      "location": "pages/salesscreen/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    }
+  ]
+}

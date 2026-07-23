@@ -26,6 +26,8 @@ var requiredTemplateFiles = []string{
 	"vendor/dagre-0.8.5.min.js",
 	"vendor/LICENSE-antv-x6.txt",
 	"vendor/LICENSE-dagre.txt",
+	"vendor/LICENSE-prism.txt",
+	"vendor/LICENSE-xojo-prism.txt",
 }
 
 // resolveTemplateDir selects an explicit project template or finds the default

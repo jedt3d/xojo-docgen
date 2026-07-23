@@ -1,0 +1,207 @@
+{
+  "project": {
+    "name": "EEiOS",
+    "slug": "eeios",
+    "type": "iOS",
+    "xojo": "2026.02",
+    "version": "1.0.0",
+    "bundleId": "com.example.eeios"
+  },
+  "entities": [
+    {
+      "name": "AboutScreen",
+      "localName": "AboutScreen",
+      "kind": "Page",
+      "itemType": "MobileScreen",
+      "members": 0,
+      "superName": "MobileScreen",
+      "location": "pages/aboutscreen/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "App",
+      "localName": "App",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 0,
+      "superName": "MobileApplication",
+      "location": "classes/app/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    },
+    {
+      "name": "Customer",
+      "localName": "Customer",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 15,
+      "superName": "—",
+      "location": "classes/customer/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    },
+    {
+      "name": "CustomerDetailScreen",
+      "localName": "CustomerDetailScreen",
+      "kind": "Page",
+      "itemType": "MobileScreen",
+      "members": 0,
+      "superName": "MobileScreen",
+      "location": "pages/customerdetailscreen/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "CustomerEditScreen",
+      "localName": "CustomerEditScreen",
+      "kind": "Page",
+      "itemType": "MobileScreen",
+      "members": 0,
+      "superName": "MobileScreen",
+      "location": "pages/customereditscreen/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "CustomerScreen",
+      "localName": "CustomerScreen",
+      "kind": "Page",
+      "itemType": "MobileScreen",
+      "members": 0,
+      "superName": "MobileScreen",
+      "location": "pages/customerscreen/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "Invoice",
+      "localName": "Invoice",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 5,
+      "superName": "—",
+      "location": "classes/invoice/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    },
+    {
+      "name": "InvoiceCell",
+      "localName": "InvoiceCell",
+      "kind": "Page",
+      "itemType": "iOSContainerControl",
+      "members": 0,
+      "superName": "MobileTableCustomCell",
+      "location": "pages/invoicecell/",
+      "navigation": {
+        "category": "class",
+        "section": "Containers"
+      }
+    },
+    {
+      "name": "InvoiceScreen",
+      "localName": "InvoiceScreen",
+      "kind": "Page",
+      "itemType": "MobileScreen",
+      "members": 0,
+      "superName": "MobileScreen",
+      "location": "pages/invoicescreen/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "SalesChart",
+      "localName": "SalesChart",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 2,
+      "superName": "mobileChart",
+      "location": "classes/saleschart/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    },
+    {
+      "name": "SalesScreen",
+      "localName": "SalesScreen",
+      "kind": "Page",
+      "itemType": "MobileScreen",
+      "members": 0,
+      "superName": "MobileScreen",
+      "location": "pages/salesscreen/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "Section",
+      "localName": "Section",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 3,
+      "superName": "—",
+      "location": "classes/section/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    },
+    {
+      "name": "YearScreen",
+      "localName": "YearScreen",
+      "kind": "Page",
+      "itemType": "MobileScreen",
+      "members": 0,
+      "superName": "MobileScreen",
+      "location": "pages/yearscreen/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "iPadLayout",
+      "localName": "iPadLayout",
+      "kind": "Page",
+      "itemType": "iOSLayout",
+      "members": 0,
+      "superName": "—",
+      "location": "pages/ipadlayout/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "iPhoneLayout",
+      "localName": "iPhoneLayout",
+      "kind": "Page",
+      "itemType": "iOSLayout",
+      "members": 0,
+      "superName": "—",
+      "location": "pages/iphonelayout/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    }
+  ]
+}

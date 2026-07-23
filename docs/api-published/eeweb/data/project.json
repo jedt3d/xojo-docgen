@@ -1,0 +1,326 @@
+{
+  "project": {
+    "name": "EEWeb",
+    "slug": "eeweb",
+    "type": "Web2",
+    "xojo": "2026.02",
+    "version": "3.0.0",
+    "bundleId": "com.example.eeweb",
+    "debugPort": "8787"
+  },
+  "entities": [
+    {
+      "name": "AboutBoxDialog",
+      "localName": "AboutBoxDialog",
+      "kind": "Page",
+      "itemType": "WebView",
+      "members": 0,
+      "superName": "WebDialog",
+      "location": "pages/aboutboxdialog/",
+      "navigation": {
+        "category": "surface",
+        "section": "Dialogs"
+      }
+    },
+    {
+      "name": "App",
+      "localName": "App",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 9,
+      "superName": "WebApplication",
+      "location": "classes/app/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    },
+    {
+      "name": "ChartPage",
+      "localName": "ChartPage",
+      "kind": "Page",
+      "itemType": "WebView",
+      "members": 0,
+      "superName": "WebPage",
+      "location": "pages/chartpage/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "CustomerDetailsPage",
+      "localName": "CustomerDetailsPage",
+      "kind": "Page",
+      "itemType": "WebView",
+      "members": 0,
+      "superName": "WebPage",
+      "location": "pages/customerdetailspage/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "CustomerDetailsToolbar",
+      "localName": "CustomerDetailsToolbar",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 2,
+      "superName": "WebToolbar",
+      "location": "classes/customerdetailstoolbar/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    },
+    {
+      "name": "DBField",
+      "localName": "DBField",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 1,
+      "superName": "WebTextField",
+      "location": "classes/dbfield/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    },
+    {
+      "name": "DatabaseNotAvailablePage",
+      "localName": "DatabaseNotAvailablePage",
+      "kind": "Page",
+      "itemType": "WebView",
+      "members": 0,
+      "superName": "WebPage",
+      "location": "pages/databasenotavailablepage/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "ErrorDetailsDialog",
+      "localName": "ErrorDetailsDialog",
+      "kind": "Page",
+      "itemType": "WebView",
+      "members": 0,
+      "superName": "WebDialog",
+      "location": "pages/errordetailsdialog/",
+      "navigation": {
+        "category": "surface",
+        "section": "Dialogs"
+      }
+    },
+    {
+      "name": "InvoiceDetailsDialog",
+      "localName": "InvoiceDetailsDialog",
+      "kind": "Page",
+      "itemType": "WebView",
+      "members": 0,
+      "superName": "WebDialog",
+      "location": "pages/invoicedetailsdialog/",
+      "navigation": {
+        "category": "surface",
+        "section": "Dialogs"
+      }
+    },
+    {
+      "name": "LogPage",
+      "localName": "LogPage",
+      "kind": "Page",
+      "itemType": "WebView",
+      "members": 0,
+      "superName": "WebPage",
+      "location": "pages/logpage/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "MachineStatus",
+      "localName": "MachineStatus",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 13,
+      "superName": "—",
+      "location": "classes/machinestatus/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    },
+    {
+      "name": "MobileAbout",
+      "localName": "MobileAbout",
+      "kind": "Page",
+      "itemType": "WebView",
+      "members": 0,
+      "superName": "WebDialog",
+      "location": "pages/mobileabout/",
+      "navigation": {
+        "category": "surface",
+        "section": "Dialogs"
+      }
+    },
+    {
+      "name": "MobileChart",
+      "localName": "MobileChart",
+      "kind": "Page",
+      "itemType": "WebView",
+      "members": 0,
+      "superName": "WebPage",
+      "location": "pages/mobilechart/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "MobileCustomerDetailsPage",
+      "localName": "MobileCustomerDetailsPage",
+      "kind": "Page",
+      "itemType": "WebView",
+      "members": 0,
+      "superName": "WebPage",
+      "location": "pages/mobilecustomerdetailspage/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "MobileCustomerList",
+      "localName": "MobileCustomerList",
+      "kind": "Page",
+      "itemType": "WebView",
+      "members": 0,
+      "superName": "WebPage",
+      "location": "pages/mobilecustomerlist/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "MobileSearchDialog",
+      "localName": "MobileSearchDialog",
+      "kind": "Page",
+      "itemType": "WebView",
+      "members": 0,
+      "superName": "WebDialog",
+      "location": "pages/mobilesearchdialog/",
+      "navigation": {
+        "category": "surface",
+        "section": "Dialogs"
+      }
+    },
+    {
+      "name": "MobileToolbar",
+      "localName": "MobileToolbar",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 1,
+      "superName": "WebToolbar",
+      "location": "classes/mobiletoolbar/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    },
+    {
+      "name": "OrdersDatabase",
+      "localName": "OrdersDatabase",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 21,
+      "superName": "SQLiteDatabase",
+      "location": "classes/ordersdatabase/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    },
+    {
+      "name": "SearchCustomersDialog",
+      "localName": "SearchCustomersDialog",
+      "kind": "Page",
+      "itemType": "WebView",
+      "members": 0,
+      "superName": "WebDialog",
+      "location": "pages/searchcustomersdialog/",
+      "navigation": {
+        "category": "surface",
+        "section": "Dialogs"
+      }
+    },
+    {
+      "name": "SelectablePopupMenu",
+      "localName": "SelectablePopupMenu",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 1,
+      "superName": "WebPopupMenu",
+      "location": "classes/selectablepopupmenu/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    },
+    {
+      "name": "Session",
+      "localName": "Session",
+      "kind": "Session",
+      "itemType": "WebSession",
+      "members": 10,
+      "superName": "WebSession",
+      "location": "classes/session/",
+      "navigation": {
+        "category": "class",
+        "section": "Sessions"
+      }
+    },
+    {
+      "name": "SystemUsageLogger",
+      "localName": "SystemUsageLogger",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 3,
+      "superName": "Timer",
+      "location": "classes/systemusagelogger/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    },
+    {
+      "name": "TestForBrowserSize",
+      "localName": "TestForBrowserSize",
+      "kind": "Page",
+      "itemType": "WebView",
+      "members": 0,
+      "superName": "WebPage",
+      "location": "pages/testforbrowsersize/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    },
+    {
+      "name": "UtilLib",
+      "localName": "UtilLib",
+      "kind": "Module",
+      "itemType": "Module",
+      "members": 1,
+      "superName": "—",
+      "location": "classes/utillib/",
+      "module": "UtilLib",
+      "navigation": {
+        "category": "library",
+        "section": "Library"
+      }
+    }
+  ]
+}

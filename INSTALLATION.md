@@ -77,6 +77,19 @@ mkdocs build --strict -f /path/to/docs/api/app/mkdocs.yml
 The result is written beside `api/` under `api-published/app/`. It is a
 standalone static site suitable for GitHub Pages or another static host.
 
+DocGen requires `-single` or `-root`; the repository does not distribute or
+implicitly select example Xojo projects. The tracked sites under `docs/` are
+generated evaluation snapshots only.
+
+The default Landmark template is stored at `docgen/templates/default/`. A
+binary run from the cloned `docgen/` directory finds it automatically. When
+distributing the executable separately, copy that directory to
+`templates/default/` beside the executable or provide a complete template with
+`-template-dir` in single-project mode.
+
+For the complete generation, customization, preview, and deployment workflow,
+see [`docs/setup-guide.md`](docs/setup-guide.md).
+
 ## Official Xojo links
 
 DocGen auto-detects the `objects.inv` file shipped with the Xojo IDE. Override

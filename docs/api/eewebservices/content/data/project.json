@@ -1,0 +1,52 @@
+{
+  "project": {
+    "name": "EEWebServices",
+    "slug": "eewebservices",
+    "type": "Web2",
+    "xojo": "2026.02",
+    "version": "2.0.0",
+    "bundleId": "com.example.eews",
+    "debugPort": "8080"
+  },
+  "entities": [
+    {
+      "name": "App",
+      "localName": "App",
+      "kind": "Class",
+      "itemType": "Class",
+      "members": 9,
+      "superName": "WebApplication",
+      "location": "classes/app/",
+      "navigation": {
+        "category": "class",
+        "section": "Classes"
+      }
+    },
+    {
+      "name": "Session",
+      "localName": "Session",
+      "kind": "Session",
+      "itemType": "WebSession",
+      "members": 0,
+      "superName": "WebSession",
+      "location": "classes/session/",
+      "navigation": {
+        "category": "class",
+        "section": "Sessions"
+      }
+    },
+    {
+      "name": "WebPage1",
+      "localName": "WebPage1",
+      "kind": "Page",
+      "itemType": "WebView",
+      "members": 0,
+      "superName": "WebPage",
+      "location": "pages/webpage1/",
+      "navigation": {
+        "category": "surface",
+        "section": "Surfaces"
+      }
+    }
+  ]
+}

@@ -1,14 +1,14 @@
 # xojo-docgen
 
-**Generate API documentation from Xojo projects — Go → Markdown → EEWeb editorial reader.**
+**Generate API documentation from Xojo projects — Go → Markdown → Landmark reader.**
 
 `xojo-docgen` parses Xojo text-project files (`.xojo_project` + `.xojo_code` / `.xojo_window` / `.xojo_menu` / `.xojo_toolbar`), extracts every documentable entity, and emits clean Markdown — then renders each project into a standalone, deploy-ready static site using an editable editorial Xojo template.
 
 - **Code as the display focus.** The `#tag` structural layer is used only to extract entities; methods display their complete VB/Xojo source directly in one syntax-highlighted block.
 - **Per-project sites.** Each Xojo project becomes its own independent static site, ready to publish to GitHub Pages or any static host.
-- **Multi-project.** Point the tool at a folder of projects; it generates a separate doc set for each. Built and tested against all five Xojo project types (Console, Desktop, iOS, Mobile/Android, Web).
+- **Multi-project.** Point the tool at a folder of projects; it generates a separate doc set for each. Tested with Console, Desktop, iOS, Mobile/Android, Web, and Web-service example projects.
 - **Official-docs linking.** Type references (`As WebButton`, `As Integer`, `Inherits SQLiteDatabase`) auto-link to the official Xojo documentation via the IDE's shipped `objects.inv` inventory.
-- **Canonical EEWeb reader.** The interface approved at `eeweb-docs-editorial.sjedt.chatgpt.site` is the default publishing template: editorial overview, collapsible project rail, search, hash-addressable entity reader, sticky page contents, dark mode, and Xojo syntax highlighting.
+- **Landmark reader.** The bundled publishing template provides an editorial overview, collapsible project rail, search, hash-addressable entity reader, sticky page contents, dark mode, and Xojo syntax highlighting.
 - **Theme without recompiling.** The default reader is a normal template directory. `-template-dir` selects a complete per-project template, while `-primary-color R,G,B` generates its coordinated palette.
 - **Syntax highlighting.** Full Xojo grammar via Prism.js, preserved independently of the selected primary color.
 - **Source review.** Every method body remains readable in horizontally scrollable, syntax-highlighted source blocks.
@@ -20,7 +20,7 @@
 
 Xojo is a cross-platform development tool for building Desktop, Web, and Mobile apps. Its text-based "Xojo Project" format saves each project item as a separate diff-friendly file — perfect for Git, but there was no good way to generate API documentation from it like you can with Javadoc, Sphinx, or YARD.
 
-`xojodoc` (a community tool) existed but was unmaintained and written in Xojo itself, making it hard to run in CI. `xojo-docgen` takes a different approach: a purpose-built Go extractor that parses the `#tag` format directly. MkDocs renders Markdown and runs the static build; DocGen’s EEWeb editorial reader owns the complete published DOM and interface. The result is fast, self-contained, and produces genuinely readable docs.
+`xojodoc` (a community tool) existed but was unmaintained and written in Xojo itself, making it hard to run in CI. `xojo-docgen` takes a different approach: a purpose-built Go extractor that parses the `#tag` format directly. MkDocs renders Markdown and runs the static build; DocGen’s Landmark reader owns the complete published DOM and interface. The result is fast, self-contained, and produces genuinely readable docs.
 
 ---
 
@@ -34,30 +34,20 @@ Xojo is a cross-platform development tool for building Desktop, Web, and Mobile 
 cd docgen
 go build -o xojo-docgen .
 
-# Generate Markdown for all sample projects
-./xojo-docgen -root ../sample_project -out ../../docs/api -v
-
-# Or generate one project while omitting dependency folders from its API
-./xojo-docgen -single "../../Long Pepper.xojo_project" \
-  -exclude-folder "dependencies,vendor" -out ../../docs/api -v
+# Generate one project while omitting dependency folders from its API
+./xojo-docgen -single "/path/to/MyApp.xojo_project" \
+  -exclude-folder "dependencies,vendor" -out /path/to/output/api -v
 
 # Add a project-relative SQLite schema (repeat -database for more than one)
-./xojo-docgen -single "../../dependencies/XjMVVM/mvvm.xojo_project" \
-  -database data/notes.sqlite -out ../../docs/api -v
+./xojo-docgen -single "/path/to/MyApp.xojo_project" \
+  -database data/app.sqlite -out /path/to/output/api -v
 
-# Generate the same editorial theme from another primary RGB value
-./xojo-docgen -root ../sample_project -out ../../docs/api \
+# Or process every .xojo_project below a directory
+./xojo-docgen -root "/path/to/projects" -out /path/to/output/api \
   -primary-color "122,31,43" -v
 
-# Render each project into a standalone site
-cd ../..
-make docs
-
-# Preview one project
-make docs-serve PROJECT=eeweb    # http://127.0.0.1:8000
-
-# Preview all projects on their own local domains
-make docs-serve-all              # http://eeweb.lvh.me:8910/, etc.
+# Render one generated project into a standalone site
+mkdocs build --strict -f /path/to/output/api/myapp/mkdocs.yml
 ```
 
 `-exclude-folder` accepts a comma-separated list of Xojo `Folder` item names.
@@ -106,6 +96,17 @@ Each published site is a complete static site — its own `index.html`, Landmark
 Installation, including the tested Python package versions, is documented in
 [`INSTALLATION.md`](INSTALLATION.md).
 
+## Included generated examples
+
+[`docs/`](docs/) contains the Markdown API output and published Landmark sites
+produced while testing DocGen with six Xojo example applications: SendingEmail,
+EEDesktop, EEiOS, EEAndroid, EEWeb, and EEWebServices. These snapshots
+demonstrate the supported targets and are not inputs to the generator. The
+original Xojo projects are not distributed in this repository.
+
+See [`docs/README.md`](docs/README.md) for the artifact layout, provenance,
+licensing boundary, and commands for viewing the published results.
+
 ---
 
 ## Open source projects used
@@ -147,9 +148,12 @@ required by the current implementation. See the historical notice in
 
 Copyright © 2026 Worajedt Sitthidumrong. Licensed under the **MIT License** — see [LICENSE](LICENSE).
 
-### The sample projects (`sample_project/`)
+### Generated example documentation (`docs/`)
 
-The "Eddie's Electronics" sample applications under `sample_project/` are **© Xojo, Inc.** They are included only as test fixtures and are **not** covered by the MIT license. See [sample_project/NOTICE](sample_project/NOTICE) and [xojo.com/license](https://www.xojo.com/license/).
+The included API snapshots were generated while testing against Xojo example
+projects. The example names and generated documentation derived from those
+projects remain attributable to Xojo, Inc. and are not covered by DocGen's MIT
+license. The original Xojo project files are not included.
 
 ### Vendored third-party assets (`docgen/templates/default/`)
 
@@ -192,18 +196,16 @@ xojo-docgen/
 │   │   ├── mkdocs.base.yml
 │   │   ├── assets/
 │   │   ├── hooks/             rendered-document payload hook
-│   │   ├── overrides/         complete EEWeb publishing shell
+│   │   ├── overrides/         complete Landmark publishing shell
 │   │   ├── javascripts/       reader runtime + database viewer + Prism grammar
-│   │   └── stylesheets/       generated palette + canonical EEWeb CSS
+│   │   └── stylesheets/       generated palette + Landmark CSS
 │   └── README.md              extractor-specific docs
-└── sample_project/            Xojo sample projects (© Xojo, Inc.) — test fixtures
-    ├── NOTICE                 Xojo copyright notice
-    ├── console_sending_email/
-    ├── ee_android/
-    ├── ee_desktop/
-    ├── ee_ios/
-    ├── ee_web/
-    └── ee_webservices/
+└── docs/                      tested generated examples; no Xojo projects
+    ├── README.md              artifact provenance and viewing guide
+    ├── setup-guide.md         current generation and publishing workflow
+    ├── naming-guide.md        Xojo naming reference used during evaluation
+    ├── api/                   generated Markdown + per-project MkDocs config
+    └── api-published/         ready-to-host Landmark sites
 ```
 
 ---
