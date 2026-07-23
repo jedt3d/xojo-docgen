@@ -19,8 +19,15 @@ func main() {
 		verbose        = flag.Bool("v", false, "verbose output.")
 		publishPrep    = flag.Bool("publish-prep", false, "after generating, write .nojekyll into each docs/api-published/<slug>/ so sites are GitHub-Pages ready.")
 		excludeFolder  = flag.String("exclude-folder", "", "comma-separated Xojo Folder item names whose complete manifest subtrees are omitted.")
+		templateDir    = flag.String("template-dir", "", "complete template directory for -single; defaults to templates/default beside xojo-docgen.")
+		primaryColor   = flag.String("primary-color", defaultPrimaryColor, "primary theme color as R,G,B; related shades and accessible accents are generated automatically.")
 	)
 	flag.Parse()
+
+	if *templateDir != "" && *single == "" {
+		fmt.Fprintln(os.Stderr, "error: -template-dir requires -single so a project template cannot be applied to every project accidentally")
+		os.Exit(2)
+	}
 
 	if *root == "" && *single == "" {
 		// Default to the sample_project dir if present.
@@ -34,13 +41,28 @@ func main() {
 		}
 	}
 
+	selectedPrimaryColor, err := parsePrimaryColor(*primaryColor)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: primary color: %v\n", err)
+		os.Exit(2)
+	}
+
+	selectedTemplateDir, err := resolveTemplateDir(*templateDir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: template: %v\n", err)
+		os.Exit(2)
+	}
+	if *verbose {
+		fmt.Fprintf(os.Stderr, "template: %s\n", selectedTemplateDir)
+		fmt.Fprintf(os.Stderr, "primary color: %s (RGB %s)\n", selectedPrimaryColor.hex(), *primaryColor)
+	}
+
 	// Resolve the Xojo docs root for the link map.
 	xojoDocs := *docsRoot
 	if xojoDocs == "" && !*noLinks {
 		xojoDocs = defaultDocsRoot()
 	}
 	var lm *LinkMap
-	var err error
 	if *noLinks {
 		lm = &LinkMap{}
 	} else {
@@ -66,11 +88,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	assets := &templateAssets{baseConfigName: "mkdocs.base.yml"}
 	var failed int
 	var slugs []string
 	for _, projPath := range projects {
-		slug, err := processProject(projPath, *out, lm, *includePrivate, *verbose, assets, splitCommaList(*excludeFolder))
+		slug, err := processProject(projPath, *out, lm, *includePrivate, *verbose, selectedTemplateDir, selectedPrimaryColor, splitCommaList(*excludeFolder))
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: %s: %v\n", projPath, err)
 			failed++
@@ -117,7 +138,7 @@ func findProjects(root string) []string {
 
 // processProject parses one project, builds its model, and renders Markdown.
 // Returns the project slug.
-func processProject(projPath string, outRoot string, lm *LinkMap, includePrivate bool, verbose bool, assets *templateAssets, excludedFolders []string) (string, error) {
+func processProject(projPath string, outRoot string, lm *LinkMap, includePrivate bool, verbose bool, templateDir string, primaryColor RGBColor, excludedFolders []string) (string, error) {
 	projPath, _ = filepath.Abs(projPath)
 	projectDir := filepath.Dir(projPath)
 	config, items, err := parseManifest(projPath)
@@ -199,7 +220,7 @@ func processProject(projPath string, outRoot string, lm *LinkMap, includePrivate
 	}
 
 	// Render.
-	if err := renderMarkdown(p, outRoot, lm, includePrivate, assets); err != nil {
+	if err := renderMarkdown(p, outRoot, lm, includePrivate, templateDir, primaryColor); err != nil {
 		return slug, err
 	}
 	return slug, nil

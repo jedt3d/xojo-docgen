@@ -2,13 +2,14 @@
 
 **Generate API documentation from Xojo projects — Go → Markdown → MkDocs Material.**
 
-`xojo-docgen` parses Xojo text-project files (`.xojo_project` + `.xojo_code` / `.xojo_window` / `.xojo_menu` / `.xojo_toolbar`), extracts every documentable entity, and emits clean Markdown — then renders each project into a standalone, deploy-ready static site themed in Xojo green.
+`xojo-docgen` parses Xojo text-project files (`.xojo_project` + `.xojo_code` / `.xojo_window` / `.xojo_menu` / `.xojo_toolbar`), extracts every documentable entity, and emits clean Markdown — then renders each project into a standalone, deploy-ready static site using an editable editorial Xojo template.
 
 - **Code as the display focus.** The `#tag` structural layer is used only to extract entities; what you see in the docs is the real VB/Xojo source (signatures + collapsible full method bodies).
 - **Per-project sites.** Each Xojo project becomes its own independent MkDocs Material site, ready to publish to GitHub Pages or any static host.
 - **Multi-project.** Point the tool at a folder of projects; it generates a separate doc set for each. Built and tested against all five Xojo project types (Console, Desktop, iOS, Mobile/Android, Web).
 - **Official-docs linking.** Type references (`As WebButton`, `As Integer`, `Inherits SQLiteDatabase`) auto-link to the official Xojo documentation via the IDE's shipped `objects.inv` inventory.
-- **Syntax highlighting.** Full Xojo grammar via Prism.js, with a green-tuned token palette that harmonizes with the brand.
+- **Theme without recompiling.** The default theme is a normal template directory. `-template-dir` selects a complete per-project template, while `-primary-color R,G,B` generates its coordinated palette.
+- **Syntax highlighting.** Full Xojo grammar via Prism.js, preserved independently of the selected primary color.
 - **Source review.** Every method body sits in a collapsible block with a fullscreen modal for long code review.
 
 ---
@@ -37,6 +38,10 @@ go build -o xojo-docgen .
 ./xojo-docgen -single "../../Long Pepper.xojo_project" \
   -exclude-folder "dependencies,vendor" -out ../../docs/api -v
 
+# Generate the same editorial theme from another primary RGB value
+./xojo-docgen -root ../sample_project -out ../../docs/api \
+  -primary-color "122,31,43" -v
+
 # Render each project into a standalone site
 cd ../..
 make docs
@@ -53,6 +58,17 @@ Matching is case-insensitive and follows the manifest's `ParentID` hierarchy,
 so every nested item is omitted regardless of its filesystem path or declaration
 order. Regeneration replaces `docs/api/<slug>/` completely to prevent stale API
 pages; keep hand-written files outside that generated directory.
+
+`-primary-color` accepts three decimal channels from 0 through 255. The default
+is Xojo dark green (`11,99,56`). DocGen derives light, dark, soft, border, and
+contrast-safe accent variants and writes `stylesheets/primary-color.css` into
+each generated project. The source template is never modified.
+
+`-template-dir` is intentionally limited to `-single`, preventing one
+project-specific visual identity from being applied accidentally to a batch.
+Copy `docgen/templates/default/` as the starting point; keep the required
+directory structure and use the `--xojo-primary-*` CSS variables when custom
+styles should respond to `-primary-color`.
 
 ## How it works
 
@@ -83,7 +99,7 @@ Each published site is a complete static site — its own `index.html`, search i
 | **Prism.js** | Lea Verou & James DiGioia | MIT | Client-side syntax highlighting | [prismjs.com](https://prismjs.com) |
 | **Xojo Prism grammar** | Worajedt Sitthidumrong | MIT | The Xojo language definition for Prism | [github.com/jedt3d/xojo-syntax-highlight-for-web](https://github.com/jedt3d/xojo-syntax-highlight-for-web) |
 
-The Xojo brand color (`#87B946`) and documentation link map (`objects.inv`) are properties of Xojo, Inc.
+The default Xojo-inspired primary color and documentation link map (`objects.inv`) are properties of Xojo, Inc.
 
 ---
 
@@ -97,7 +113,7 @@ Copyright © 2026 Worajedt Sitthidumrong. Licensed under the **MIT License** —
 
 The "Eddie's Electronics" sample applications under `sample_project/` are **© Xojo, Inc.** They are included only as test fixtures and are **not** covered by the MIT license. See [sample_project/NOTICE](sample_project/NOTICE) and [xojo.com/license](https://www.xojo.com/license/).
 
-### Vendored third-party assets (`docgen/assets/`)
+### Vendored third-party assets (`docgen/templates/default/javascripts/`)
 
 - `prism.js` — © PrismJS contributors, MIT License ([prismjs.com](https://prismjs.com))
 - `xojo.prism.js` — © Worajedt Sitthidumrong, MIT License
@@ -121,13 +137,15 @@ xojo-docgen/
 │   ├── model.go               data model
 │   ├── docs.go                documentation extraction
 │   ├── linkmap.go             objects.inv → official-docs link map
-│   ├── featured.go            green placeholder PNG generator
 │   ├── render_markdown.go     Markdown rendering (code-focused, type-linked)
 │   ├── emit_mkdocs.go         per-project mkdocs.yml emitter
-│   ├── theme.go               embedded CSS/JS (go:embed)
-│   ├── extra.css              Xojo green theme stylesheet
-│   ├── mkdocs.base.yml        shared MkDocs config
-│   ├── assets/                vendored Prism.js + Xojo grammar + modal JS
+│   ├── template.go            resolve, validate, and copy templates
+│   ├── primary_color.go       RGB parsing + derived palette generation
+│   ├── templates/default/     built-in editorial template
+│   │   ├── mkdocs.base.yml
+│   │   ├── assets/
+│   │   ├── javascripts/       Prism.js + Xojo grammar + UI behavior
+│   │   └── stylesheets/       generated-palette contract + theme CSS
 │   └── README.md              extractor-specific docs
 └── sample_project/            Xojo sample projects (© Xojo, Inc.) — test fixtures
     ├── NOTICE                 Xojo copyright notice

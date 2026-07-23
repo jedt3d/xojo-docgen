@@ -1,61 +1,42 @@
-/* Xojo green theme for MkDocs Material.
-   Brand color: #87B946 (RGB 135, 185, 70).
-   Derived ramp:
-     primary  #87B946   (header, sidebar brand)
-     accent   #5E8A2E   (links, hover — darker for WCAG-AA contrast on white)
-     tint     #A8D073   (lighter accents)
-     pale     #D4E8BF   (admonition backgrounds, code block tints)
-   Dark mode lifts the green toward #9DC863 for readability.
-*/
+/* Editorial Xojo theme for MkDocs Material.
+   Brand values come from generated stylesheets/primary-color.css. */
 
 :root {
-  /* Primary brand green */
-  --md-primary-fg-color: #87B946;
-  --md-primary-fg-color--light: #A8D073;
-  --md-primary-fg-color--dark: #5E8A2E;
+  --md-primary-fg-color: var(--xojo-primary);
+  --md-primary-fg-color--light: var(--xojo-primary-light);
+  --md-primary-fg-color--dark: var(--xojo-primary-dark);
   --md-primary-bg-color: #ffffff;
   --md-primary-bg-color--light: #ffffff;
-
-  /* Accent (links, hover) — darker green for contrast */
-  --md-accent-fg-color: #5E8A2E;
-  --md-accent-fg-color--transparent: rgba(94, 138, 46, 0.1);
-  --md-accent-bg-color: #5E8A2E;
-  --md-accent-bg-color--light: #87B946;
-
-  /* Default link color uses accent for visibility */
-  --md-typeset-a-color: #5E8A2E;
+  --md-accent-fg-color: var(--xojo-primary-accent);
+  --md-accent-fg-color--transparent: var(--xojo-primary-wash);
+  --md-accent-bg-color: var(--xojo-primary-accent);
+  --md-accent-bg-color--light: var(--xojo-primary-light);
+  --md-typeset-a-color: var(--xojo-primary-accent);
 }
 
 [data-md-color-scheme="default"] {
-  --md-primary-fg-color: #87B946;
-  --md-primary-fg-color--light: #A8D073;
-  --md-primary-fg-color--dark: #5E8A2E;
-  --md-accent-fg-color: #5E8A2E;
-  --md-typeset-a-color: #5E8A2E;
-
-  /* Subtle green tint for code block backgrounds */
-  --md-code-bg-color: #f4f9ec;
-  --md-code-fg-color: #3d5e1f;
-
-  /* Green-tinted admonition defaults */
-  --md-admonition-bg-color: #f4f9ec;
+  --md-primary-fg-color: var(--xojo-primary);
+  --md-primary-fg-color--light: var(--xojo-primary-light);
+  --md-primary-fg-color--dark: var(--xojo-primary-dark);
+  --md-accent-fg-color: var(--xojo-primary-accent);
+  --md-typeset-a-color: var(--xojo-primary-accent);
+  --md-code-bg-color: #101a15;
+  --md-code-fg-color: #e9f2ec;
+  --md-admonition-bg-color: #f3f6f3;
 }
 
 [data-md-color-scheme="slate"] {
-  /* Dark mode: lift green toward a lighter, more readable shade */
-  --md-primary-fg-color: #6FA835;
-  --md-primary-fg-color--light: #87B946;
-  --md-primary-fg-color--dark: #5E8A2E;
-  --md-default-bg-color: #1a1e15;
-  --md-default-bg-color--light: #1a1e15;
-  --md-default-bg-color--lighter: #14180f;
-
-  --md-accent-fg-color: #9DC863;
-  --md-accent-fg-color--transparent: rgba(157, 200, 99, 0.12);
-  --md-typeset-a-color: #9DC863;
-
-  --md-code-bg-color: #14180f;
-  --md-code-fg-color: #B8D98C;
+  --md-primary-fg-color: var(--xojo-primary);
+  --md-primary-fg-color--light: var(--xojo-primary-light);
+  --md-primary-fg-color--dark: var(--xojo-primary-dark);
+  --md-default-bg-color: #101512;
+  --md-default-bg-color--light: #101512;
+  --md-default-bg-color--lighter: #090d0b;
+  --md-accent-fg-color: var(--xojo-primary-accent);
+  --md-accent-fg-color--transparent: var(--xojo-primary-wash);
+  --md-typeset-a-color: var(--xojo-primary-accent);
+  --md-code-bg-color: #090d0b;
+  --md-code-fg-color: #e8f3ec;
 }
 
 /* Featured image: sits above the Entities block on landing pages. The
@@ -440,10 +421,178 @@ code, .md-typeset code {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Editorial shell. Flat rules, restrained radii, wide reading space, and a
+   desktop navigation rail that can collapse for long Xojo source lines.
+   ──────────────────────────────────────────────────────────────────────── */
+.md-header {
+  color: var(--md-default-fg-color);
+  background: color-mix(in srgb, var(--md-default-bg-color) 94%, transparent);
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+  box-shadow: none;
+  backdrop-filter: blur(18px);
+}
+
+.md-header__button,
+.md-header__title {
+  color: var(--md-default-fg-color);
+}
+
+.md-tabs {
+  color: var(--md-default-fg-color--light);
+  background: var(--md-default-bg-color);
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.md-tabs__link--active,
+.md-tabs__link:hover {
+  color: var(--xojo-primary-accent);
+}
+
+.md-main__inner {
+  max-width: 100%;
+}
+
+.md-content {
+  min-width: 0;
+}
+
+.md-content__inner {
+  max-width: 76rem;
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 3vw, 3.5rem);
+}
+
+.md-typeset h1 {
+  max-width: 72rem;
+  color: var(--md-default-fg-color);
+  font-size: clamp(2.35rem, 5vw, 5.1rem);
+  font-weight: 520;
+  letter-spacing: -0.065em;
+  line-height: 0.96;
+  text-wrap: balance;
+}
+
+.md-typeset h2 {
+  color: color-mix(in srgb, var(--xojo-primary-accent) 80%, transparent);
+  font-size: clamp(1.35rem, 2vw, 2rem);
+  font-weight: 560;
+  letter-spacing: -0.035em;
+}
+
+.md-typeset h3,
+.md-typeset h4 {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: -0.025em;
+}
+
+.md-sidebar {
+  background: var(--md-default-bg-color);
+}
+
+.md-sidebar--secondary {
+  position: sticky;
+  top: 4.8rem;
+  align-self: flex-start;
+}
+
+.md-nav__link--active {
+  color: var(--xojo-primary-accent);
+}
+
+.xojo-sidebar-toggle {
+  width: 2.2rem;
+  height: 2.2rem;
+  display: grid;
+  place-content: center;
+  gap: 0.32rem;
+  margin-right: 0.25rem;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+
+.xojo-sidebar-toggle span {
+  width: 1rem;
+  height: 1px;
+  display: block;
+  background: currentColor;
+}
+
+.xojo-sidebar-toggle span:last-child {
+  width: 0.68rem;
+  transition: width 160ms ease;
+}
+
+.xojo-sidebar-collapsed .xojo-sidebar-toggle span:last-child {
+  width: 1rem;
+}
+
+.md-typeset code {
+  border-radius: 0;
+}
+
+.md-typeset pre {
+  border-radius: 2px;
+}
+
+.md-content details.source,
+.md-content details.internal {
+  border-left-color: var(--xojo-primary-border);
+  border-radius: 0;
+}
+
+.md-content details.source > summary,
+.md-content details.source > summary:hover,
+.md-content details.source > summary:focus,
+.md-content details.source[open] > summary,
+.md-content details.internal > summary,
+.md-content details.internal > summary:hover,
+.md-content details.internal > summary:focus,
+.md-content details.internal[open] > summary {
+  color: var(--xojo-primary-accent);
+}
+
+.md-content details.source > summary .source-expand {
+  color: var(--xojo-primary-accent);
+  background: var(--xojo-primary-wash);
+  border-color: var(--xojo-primary-border);
+  border-radius: 2px;
+}
+
+.token.keyword,
+.token.boolean,
+.token.builtin,
+.source-modal .token.keyword,
+.source-modal .token.boolean,
+.source-modal .token.builtin {
+  color: var(--xojo-primary-light);
+}
+
+@media screen and (min-width: 76.25em) {
+  body.xojo-sidebar-collapsed .md-sidebar--primary {
+    display: none;
+  }
+
+  body.xojo-sidebar-collapsed .md-main__inner {
+    grid-template-columns: 1fr auto;
+  }
+
+  body.xojo-sidebar-collapsed .md-content__inner {
+    max-width: 92rem;
+  }
+}
+
+@media screen and (max-width: 76.234375em) {
+  .xojo-sidebar-toggle {
+    display: none;
+  }
+}
 .md-content pre code a,
 .md-content :not(pre) > code a {
   /* Keep code-block links underlined too, with a slightly tighter offset. */
   text-decoration: underline;
   text-underline-offset: 1px;
 }
-

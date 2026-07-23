@@ -11,52 +11,22 @@ import (
 
 // renderMarkdown walks the project and writes one .md per documented container
 // under outDir/<slug>/, plus an index.md landing page and a featured image.
-func renderMarkdown(p *Project, outRoot string, lm *LinkMap, includePrivate bool, assets *templateAssets) error {
+func renderMarkdown(p *Project, outRoot string, lm *LinkMap, includePrivate bool, templateDir string, primaryColor RGBColor) error {
 	outDir := filepath.Join(outRoot, p.Slug)
+	if pathsOverlap(templateDir, outDir) {
+		return fmt.Errorf("template directory and generated project directory must not overlap: %s, %s", templateDir, outDir)
+	}
 	if err := os.RemoveAll(outDir); err != nil {
 		return fmt.Errorf("clear generated project docs: %w", err)
 	}
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
 		return err
 	}
-	// Featured images: a landscape placeholder (1200x630) for desktop/wide
-	// screens and a portrait placeholder (800x1000) for phones and portrait
-	// tablets. The landing page swaps between them with a <picture> element.
-	// Users replace these files with real artwork later.
-	assetsDir := filepath.Join(outDir, "assets")
-	featuredPath := filepath.Join(assetsDir, "featured.png")
-	if err := generateFeaturedPNG(featuredPath); err != nil {
-		warnf("%s: featured image: %v", p.Slug, err)
+	if err := copyTemplateDir(templateDir, outDir); err != nil {
+		return fmt.Errorf("copy template: %w", err)
 	}
-	featuredPortraitPath := filepath.Join(assetsDir, "featured_portrait.png")
-	if err := generateFeaturedPortraitPNG(featuredPortraitPath); err != nil {
-		warnf("%s: featured portrait image: %v", p.Slug, err)
-	}
-
-	// Shared green theme stylesheet (so each per-project site is self-contained).
-	cssPath := filepath.Join(outDir, "stylesheets", "extra.css")
-	if err := os.MkdirAll(filepath.Dir(cssPath), 0o755); err != nil {
-		return err
-	}
-	if err := os.WriteFile(cssPath, []byte(xojoGreenCSS), 0o644); err != nil {
-		warnf("%s: theme css: %v", p.Slug, err)
-	}
-
-	// Client-side JS: Prism core + Xojo grammar + fullscreen modal. Vendored
-	// via go:embed so each site is fully self-contained (no CDN dependency).
-	jsDir := filepath.Join(outDir, "javascripts")
-	if err := os.MkdirAll(jsDir, 0o755); err != nil {
-		return err
-	}
-	for name, content := range map[string]string{
-		"prism.js":           prismCoreJS,
-		"xojo.prism.js":      xojoPrismJS,
-		"source-modal.js":    sourceModalJS,
-		"landing-sidebar.js": landingSidebarJS,
-	} {
-		if err := os.WriteFile(filepath.Join(jsDir, name), []byte(content), 0o644); err != nil {
-			warnf("%s: js %s: %v", p.Slug, name, err)
-		}
+	if err := writePrimaryColorCSS(outDir, primaryColor); err != nil {
+		return fmt.Errorf("write primary color palette: %w", err)
 	}
 
 	// Landing page.
@@ -69,7 +39,6 @@ func renderMarkdown(p *Project, outRoot string, lm *LinkMap, includePrivate bool
 		proj:           p,
 		lm:             lm,
 		includePrivate: includePrivate,
-		assets:         assets,
 		internalTypes:  buildInternalTypeMap(p),
 	}
 	for _, c := range p.AllContainers {
@@ -88,17 +57,11 @@ func renderMarkdown(p *Project, outRoot string, lm *LinkMap, includePrivate bool
 	return nil
 }
 
-// templateAssets carries shared config the renderer needs.
-type templateAssets struct {
-	baseConfigName string // name of the base mkdocs config (mkdocs.base.yml)
-}
-
 // renderCtx bundles per-render options.
 type renderCtx struct {
 	proj           *Project
 	lm             *LinkMap
 	includePrivate bool
-	assets         *templateAssets
 	internalTypes  map[string]string // lowercase simple-name -> path to its page, relative to project doc root
 	currentPath    string            // path of the page currently being rendered (relative to project doc root); used to compute cross-folder links
 }
@@ -140,10 +103,10 @@ func renderLandingPage(p *Project, outDir string, lm *LinkMap) error {
 	}
 
 	// Featured image: a responsive <picture> sits directly above the Entities
-	// block. Landscape (featured.png) for wide screens, portrait
-	// (featured_portrait.png) for phones/portrait tablets via art direction.
-	// Users replace the PNGs in assets/ with real artwork.
-	b.WriteString("<!-- Featured image: replace assets/featured.png (landscape, 1200x630) and assets/featured_portrait.png (portrait, 800x1000). -->\n")
+	// block. The default template ships the approved EEWeb screenshot in both
+	// slots; projects can replace featured_portrait.png with a true mobile
+	// capture later without changing generated Markdown.
+	b.WriteString("<!-- Featured images come from the selected template; featured_portrait.png may be a mobile placeholder. -->\n")
 	fmt.Fprintf(&b, "<picture class=\"featured\">\n")
 	fmt.Fprintf(&b, "  <source media=\"(max-width: 768px)\" srcset=\"assets/featured_portrait.png\">\n")
 	fmt.Fprintf(&b, "  <img src=\"assets/featured.png\" alt=\"%s — featured\">\n", htmlEscape(p.Name))

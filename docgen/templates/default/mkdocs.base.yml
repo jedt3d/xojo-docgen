@@ -19,7 +19,7 @@ theme:
     - search.suggest
     - search.highlight
   font:
-    text: Roboto
+    text: Geist
     code: JetBrains Mono
   icon:
     logo: material/book-open-page-variant
@@ -42,9 +42,11 @@ theme:
         name: Switch to light mode
 
 extra_css:
+  - stylesheets/primary-color.css
   - stylesheets/extra.css
 
 extra_javascript:
+  - javascripts/sidebar-toggle.js
   - javascripts/prism.js
   - javascripts/xojo.prism.js
   - javascripts/source-modal.js
