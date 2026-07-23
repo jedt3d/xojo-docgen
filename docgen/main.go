@@ -8,7 +8,23 @@ import (
 	"strings"
 )
 
+type repeatedStringFlag []string
+
+func (values *repeatedStringFlag) String() string {
+	return strings.Join(*values, ", ")
+}
+
+func (values *repeatedStringFlag) Set(value string) error {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return fmt.Errorf("value cannot be empty")
+	}
+	*values = append(*values, value)
+	return nil
+}
+
 func main() {
+	var databasePaths repeatedStringFlag
 	var (
 		root           = flag.String("root", "", "root dir to scan for *.xojo_project (recursive). Processes each as a separate doc set.")
 		single         = flag.String("single", "", "path to a single .xojo_project file to process.")
@@ -22,10 +38,15 @@ func main() {
 		templateDir    = flag.String("template-dir", "", "complete template directory for -single; defaults to templates/default beside xojo-docgen.")
 		primaryColor   = flag.String("primary-color", defaultPrimaryColor, "primary theme color as R,G,B; related shades and accessible accents are generated automatically.")
 	)
+	flag.Var(&databasePaths, "database", "SQLite database file to document (repeatable; path is relative to the .xojo_project; requires -single).")
 	flag.Parse()
 
 	if *templateDir != "" && *single == "" {
 		fmt.Fprintln(os.Stderr, "error: -template-dir requires -single so a project template cannot be applied to every project accidentally")
+		os.Exit(2)
+	}
+	if len(databasePaths) > 0 && *single == "" {
+		fmt.Fprintln(os.Stderr, "error: -database requires -single so a database cannot be associated with the wrong project")
 		os.Exit(2)
 	}
 
@@ -91,7 +112,17 @@ func main() {
 	var failed int
 	var slugs []string
 	for _, projPath := range projects {
-		slug, err := processProject(projPath, *out, lm, *includePrivate, *verbose, selectedTemplateDir, selectedPrimaryColor, splitCommaList(*excludeFolder))
+		slug, err := processProject(
+			projPath,
+			*out,
+			lm,
+			*includePrivate,
+			*verbose,
+			selectedTemplateDir,
+			selectedPrimaryColor,
+			splitCommaList(*excludeFolder),
+			databasePaths,
+		)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: %s: %v\n", projPath, err)
 			failed++
@@ -138,7 +169,17 @@ func findProjects(root string) []string {
 
 // processProject parses one project, builds its model, and renders Markdown.
 // Returns the project slug.
-func processProject(projPath string, outRoot string, lm *LinkMap, includePrivate bool, verbose bool, templateDir string, primaryColor RGBColor, excludedFolders []string) (string, error) {
+func processProject(
+	projPath string,
+	outRoot string,
+	lm *LinkMap,
+	includePrivate bool,
+	verbose bool,
+	templateDir string,
+	primaryColor RGBColor,
+	excludedFolders []string,
+	databasePaths []string,
+) (string, error) {
 	projPath, _ = filepath.Abs(projPath)
 	projectDir := filepath.Dir(projPath)
 	config, items, err := parseManifest(projPath)
@@ -215,8 +256,24 @@ func processProject(projPath string, outRoot string, lm *LinkMap, includePrivate
 		}
 	}
 
+	p.Databases, err = inspectProjectDatabases(projectDir, databasePaths)
+	if err != nil {
+		return slug, fmt.Errorf("inspect database: %w", err)
+	}
+
 	if verbose {
 		fmt.Fprintf(os.Stderr, "project %s (%s): %d documented items\n", slug, p.Type, countDocumented(p))
+		for _, database := range p.Databases {
+			fmt.Fprintf(
+				os.Stderr,
+				"database %s (%s): %d tables, %d views, %d relationships\n",
+				database.Name,
+				database.Source,
+				len(database.Tables),
+				len(database.Views),
+				countDatabaseRelationships(database),
+			)
+		}
 	}
 
 	// Render.

@@ -9,8 +9,9 @@ A Go program that parses Xojo projects and emits per-project API documentation a
 2. **Parses** each project's `.xojo_project` manifest + `.xojo_code` / `.xojo_window` / `.xojo_menu` / `.xojo_toolbar` files.
 3. **Extracts** a structured model: classes, modules, interfaces, pages, and their members (methods, properties, computed properties, constants, enums, delegates, event definitions, event handlers) — using the `#tag` layer only to *structure*, and rendering the real VB/Xojo code as the display focus.
 4. **Links** type references to the official Xojo documentation via the shipped `objects.inv` Sphinx inventory (1,400+ API pages).
-5. **Copies** the EEWeb editorial template, emits its project/entity manifest, generates its primary-color palette, and writes Markdown + a per-project `mkdocs.yml` into `docs/api/<slug>/`.
-6. `mkdocs build` renders Markdown, runs the Landmark payload hook, and publishes a **standalone, deploy-ready static site** at `docs/api-published/<slug>/`.
+5. **Optionally inspects** explicitly selected SQLite files in read-only mode and emits a data dictionary plus ER relationship model.
+6. **Copies** the EEWeb editorial template, emits its project/entity/database manifests, generates its primary-color palette, and writes Markdown source into `docs/api/<slug>/content/` plus a per-project `mkdocs.yml`.
+7. `mkdocs build` renders Markdown, runs the Landmark payload hook, and publishes a **standalone, deploy-ready static site** at `docs/api-published/<slug>/`.
 
 ## Build & run
 
@@ -24,6 +25,10 @@ go build -o xojo-docgen .
 
 # Or one project
 ./xojo-docgen -single ../../tools/sample_project/ee_web/EEWeb.xojo_project -out ../../docs/api -v
+
+# Add a project-relative SQLite database schema (repeatable)
+./xojo-docgen -single "../../dependencies/XjMVVM/mvvm.xojo_project" \
+  -database data/notes.sqlite -out ../../docs/api -v
 
 # Omit Xojo project Folder items and their complete ParentID subtrees
 ./xojo-docgen -single "../../Long Pepper.xojo_project" \
@@ -48,13 +53,14 @@ make docs
 |---|---|---|
 | `-root <dir>` | `tools/sample_project` | Root to scan for `*.xojo_project` (recursive). Each becomes a separate doc set. |
 | `-single <file>` | — | Process just one `.xojo_project`. |
+| `-database <file>` | — | SQLite database to document. Repeatable, resolved relative to the `.xojo_project`, and restricted to `-single`. |
 | `-exclude-folder <names>` | — | Omit comma-separated Xojo `Folder` names (case-insensitive) and their complete ParentID subtrees. |
 | `-template-dir <dir>` | `templates/default` | Complete template for `-single`. The default is resolved beside the executable, then from the working tree. |
 | `-primary-color <R,G,B>` | `11,99,56` | Primary color in decimal RGB. Generates light, dark, soft, border, and contrast-safe accent variants for every processed project. |
 | `-out <dir>` | `docs/api` | Output dir for generated Markdown. |
 | `-docs <path>` | auto-detect | Path to the Xojo `Documentation` dir (for `objects.inv`). |
 | `-no-links` | false | Disable external links to official Xojo docs. |
-| `-include-private` | true | Include private members (collapsed under `<details>`). |
+| `-include-private` | true | Include private members in the generated documentation. |
 | `-publish-prep` | false | Write `.nojekyll` into each `docs/api-published/<slug>/` for GitHub Pages readiness. |
 | `-v` | false | Verbose output. |
 
@@ -77,6 +83,10 @@ tools/docgen/
 ├── template.go             resolve, validate, and copy complete templates
 ├── primary_color.go        parse RGB and generate the derived CSS palette
 ├── editorial_manifest.go   project/entity payload consumed by the reader
+├── database.go             read-only SQLite schema inspection + relation model
+├── database_render.go      database payload and searchable Markdown
+├── database_test.go        schema extraction and inference tests
+├── DATABASE_DOCUMENTATION.md  database feature contract and research
 ├── templates/default/      canonical EEWeb editorial publishing template
 │   ├── mkdocs.base.yml
 │   ├── assets/
@@ -99,9 +109,15 @@ tools/docgen/
 - **No Material dependency.** MkDocs uses `theme.name: null`. The Landmark override owns the complete DOM, the build hook emits `data/documents.json`, and the reader never consumes Material templates, components, bundles, or search-index HTML.
 - **The EEWeb design is canonical.** The default reader is the approved `eeweb-docs-editorial.sjedt.chatgpt.site` interface made project-agnostic. Project names, facts, entity groups, counts, sections, search results, links, and source bodies come from generated data rather than EEWeb constants.
 - **One color input, coherent variants.** `-primary-color` accepts only `R,G,B`. The generator mixes the base with white/black for its ramp and adjusts link accents until they meet a 4.5:1 contrast target on the light and dark surfaces.
+- **Cache-safe regeneration.** Each generated `mkdocs.yml` includes a deterministic content fingerprint. Landmark appends it to CSS, JavaScript, database payload, and document payload URLs so a normal browser refresh loads the current generation without stale theme or API content.
+- **Explicit database scope.** Database discovery is never recursive. Each `-database` path is associated with one `-single` project, opened with SQLite `mode=ro` and `PRAGMA query_only`, and represented as schema metadata only.
+- **Truth before inference.** Declared SQLite foreign keys are solid ER edges. An unambiguous, type-compatible match between a non-primary source column and a target table's single primary key may produce a dashed suggested edge. This covers names such as `user_id`, `CustomerID`, `InvoiceNo`, and `ProductCode`; its evidence is included in the payload and dictionary, and it is never labeled as a constraint.
+- **Large-schema LOD.** Small ER diagrams show every field on the canvas. Above 80 tables or 1,200 columns, compact topology nodes replace thousands of field rows; the inspector and dictionary retain the full detail.
+- **Offline diagrams.** AntV X6 2.19.2 and Dagre 0.8.5 are pinned inside the default template, loaded only on an ER route, and copied into every published site. No CDN is required.
 
 ## Known limitations
 
 - Standalone language `Enum` and ComputedProperty `Setter` are grammatically supported but not exercised by the sample fixtures.
 - The link map requires the Xojo IDE's `objects.inv`; use `-no-links` if absent.
 - MkDocs must be installed separately (see `docs/setup-guide.md`).
+- Database extraction currently supports SQLite 3 files. Broken view definitions are documented with an inspection diagnostic rather than aborting the entire database, while unreadable table metadata remains a build error.

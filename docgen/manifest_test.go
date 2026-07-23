@@ -33,3 +33,21 @@ func TestExcludeFolderSubtreesWithoutNamesKeepsItems(t *testing.T) {
 		t.Fatalf("unexpected result: count=%d items=%#v", excludedCount, filtered)
 	}
 }
+
+func TestContainerItemTypesAreDocumentablePages(t *testing.T) {
+	for _, itemType := range []string{
+		"WebContainer",
+		"DesktopContainer",
+		"MobileContainer",
+		"iOSContainerControl",
+	} {
+		if !isKnownItemType(itemType) {
+			t.Errorf("%s is not a known manifest item type", itemType)
+			continue
+		}
+		kind := kindFor(itemType)
+		if kind != KindPage || !shouldDocument(kind) {
+			t.Errorf("%s maps to kind %v, want documentable KindPage", itemType, kind)
+		}
+	}
+}

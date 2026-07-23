@@ -16,10 +16,16 @@ var requiredTemplateFiles = []string{
 	"hooks/editorial.py",
 	"javascripts/prism.js",
 	"javascripts/xojo.prism.js",
+	"javascripts/database.js",
 	"javascripts/editorial.js",
 	"overrides/main.html",
 	"stylesheets/editorial.css",
 	"stylesheets/primary-color.css",
+	"vendor/antv-x6-2.19.2.css",
+	"vendor/antv-x6-2.19.2.js",
+	"vendor/dagre-0.8.5.min.js",
+	"vendor/LICENSE-antv-x6.txt",
+	"vendor/LICENSE-dagre.txt",
 }
 
 // resolveTemplateDir selects an explicit project template or finds the default

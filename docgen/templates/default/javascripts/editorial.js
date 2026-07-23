@@ -2,13 +2,19 @@
   "use strict";
 
   var base = window.__XOJO_DOCGEN_BASE__ || ".";
-  var state = { manifest: null, documents: [], dark: false };
+  var assetVersion = window.__XOJO_DOCGEN_ASSET_VERSION__ || "";
+  var state = { manifest: null, documents: [], databases: [], navigation: [], dark: false };
   var structuralSections = new Set([
     "Version Info", "Event Definitions", "Event Handlers", "Methods",
     "Properties", "Properties — internal", "Constants — internal", "Controls"
   ]);
 
   function byId(id) { return document.getElementById(id); }
+  function versioned(location) {
+    if (!assetVersion) return location;
+    return location + (location.includes("?") ? "&" : "?") +
+      "v=" + encodeURIComponent(assetVersion);
+  }
   function escapeHTML(value) {
     return String(value).replace(/[&<>"']/g, function (character) {
       return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character];
@@ -23,6 +29,248 @@
     if (kind === "Page") return "Pages";
     if (kind === "Class") return "Classes";
     return kind.endsWith("s") ? kind : kind + "s";
+  }
+  function compareText(first, second) {
+    return String(first || "").localeCompare(String(second || ""), undefined, {
+      numeric: true,
+      sensitivity: "base"
+    });
+  }
+  function lastNamePart(name) {
+    var parts = String(name || "").split(".");
+    return parts[parts.length - 1] || name;
+  }
+  function entityLabel(entity) {
+    return entity.localName || lastNamePart(entity.name);
+  }
+  function surfaceLabel(projectType) {
+    var target = String(projectType || "").toLowerCase();
+    if (target.includes("desktop")) return "Window";
+    if (target.includes("web")) return "Page";
+    if (target.includes("mobile") || target.includes("ios") || target.includes("android")) {
+      return "Screen";
+    }
+    return "Surface";
+  }
+  function pluralize(label) {
+    return label.endsWith("s") ? label : label + "s";
+  }
+  function navigationFor(entity) {
+    if (entity.navigation && entity.navigation.category) return entity.navigation;
+    if (entity.kind === "Page") return { category: "surface", section: "Surfaces" };
+    if (entity.kind === "Class") return { category: "class", section: "Classes" };
+    if (entity.kind === "Session") return { category: "class", section: "Sessions" };
+    if (entity.kind === "Interface") return { category: "class", section: "Interfaces" };
+    if (entity.kind === "Module") return { category: "library", section: "Modules" };
+    if (entity.kind === "Menu Bar") return { category: "misc", section: "Menu Bars" };
+    if (entity.kind === "Toolbar") return { category: "misc", section: "Toolbars" };
+    return { category: "misc", section: kindGroup(entity.kind) };
+  }
+  function entityMenuItem(entity) {
+    return {
+      label: entityLabel(entity),
+      detail: entity.kind + (entity.members ? " · " + entity.members : ""),
+      location: entity.location,
+      order: entity.kind === "Module" ? 0 : 1,
+      entity: entity
+    };
+  }
+  function ensureSection(sections, key, label, context, order) {
+    var section = sections.find(function (candidate) { return candidate.key === key; });
+    if (section) return section;
+    section = {
+      key: key,
+      label: label,
+      context: context || "",
+      order: order || 0,
+      items: []
+    };
+    sections.push(section);
+    return section;
+  }
+  function buildNavigationModel(project, entities, databases) {
+    var targetSurface = surfaceLabel(project.type);
+    var categories = {
+      surface: { id: "surface", label: targetSurface, sections: [] },
+      class: { id: "class", label: "Class", sections: [] },
+      database: { id: "database", label: "Database", sections: [] },
+      library: { id: "library", label: "Library", sections: [] },
+      misc: { id: "misc", label: "Misc", sections: [] }
+    };
+    var sectionOrder = {
+      Surfaces: 0,
+      Dialogs: 1,
+      Classes: 0,
+      Containers: 1,
+      Sessions: 2,
+      Interfaces: 3,
+      "Menu Bars": 0,
+      Toolbars: 1,
+      Other: 2
+    };
+
+    entities.forEach(function (entity) {
+      var navigation = navigationFor(entity);
+      var category = categories[navigation.category] || categories.misc;
+      if (category.id === "library") {
+        var libraryName = entity.library || "";
+        var moduleName = entity.module || (entity.kind === "Module" ? entity.name : "");
+        var sectionName = lastNamePart(moduleName || libraryName || entity.name);
+        var context = libraryName ? "Library · " + libraryName : "Module";
+        var key = (libraryName ? "0|" + libraryName : "1") + "|" + moduleName;
+        ensureSection(category.sections, key, sectionName, context, libraryName ? 0 : 1)
+          .items.push(entityMenuItem(entity));
+        return;
+      }
+      var sectionLabel = navigation.section;
+      if (category.id === "surface" && sectionLabel === "Surfaces") {
+        sectionLabel = pluralize(targetSurface);
+      }
+      ensureSection(
+        category.sections,
+        sectionLabel,
+        sectionLabel,
+        "",
+        sectionOrder[navigation.section] === undefined ? 99 : sectionOrder[navigation.section]
+      ).items.push(entityMenuItem(entity));
+    });
+
+    (databases || []).forEach(function (database) {
+      var section = ensureSection(
+        categories.database.sections,
+        database.slug,
+        database.name,
+        database.dialect || "Database",
+        0
+      );
+      section.items.push({
+        label: "Data dictionary",
+        detail: database.tables + " tables · " + database.columns + " fields",
+        location: "database/" + database.slug + "/dictionary/"
+      });
+      section.items.push({
+        label: "ER diagram",
+        detail: database.relationships + " relationships",
+        location: "database/" + database.slug + "/diagram/"
+      });
+    });
+
+    return ["surface", "class", "database", "library", "misc"].map(function (id) {
+      var category = categories[id];
+      category.sections.sort(function (first, second) {
+        return first.order - second.order ||
+          compareText(first.context, second.context) ||
+          compareText(first.label, second.label);
+      });
+      category.sections.forEach(function (section) {
+        section.items.sort(function (first, second) {
+          return (first.order || 0) - (second.order || 0) ||
+            compareText(first.label, second.label);
+        });
+      });
+      return category;
+    }).filter(function (category) {
+      return category.sections.some(function (section) { return section.items.length; });
+    });
+  }
+  function renderTopNavigation(navigation) {
+    var menus = navigation.map(function (category) {
+      var panelId = "top-menu-" + category.id;
+      var sections = category.sections.map(function (section) {
+        return '<section class="top-menu-section">' +
+          '<header>' + (section.context ? "<small>" + escapeHTML(section.context) + "</small>" : "") +
+          "<strong>" + escapeHTML(section.label) + "</strong></header>" +
+          section.items.map(function (item) {
+            return '<button type="button" role="menuitem" data-location="' +
+              escapeHTML(item.location) + '"><span>' + escapeHTML(item.label) +
+              "</span><small>" + escapeHTML(item.detail) + "</small></button>";
+          }).join("") + "</section>";
+      }).join("");
+      return '<div class="top-menu" data-top-menu="' + escapeHTML(category.id) + '">' +
+        '<button type="button" class="top-menu-trigger" aria-expanded="false" aria-haspopup="true" ' +
+        'aria-controls="' + panelId + '">' + escapeHTML(category.label) + "<i aria-hidden=\"true\"></i></button>" +
+        '<div class="top-menu-panel" id="' + panelId + '" role="menu" hidden>' +
+        sections + "</div></div>";
+    }).join("");
+    byId("top-links").innerHTML =
+      '<button type="button" class="top-overview" data-home>Overview</button>' + menus;
+  }
+  function closeTopMenus(options) {
+    document.querySelectorAll(".top-menu.is-open").forEach(function (menu) {
+      menu.classList.remove("is-open");
+      var trigger = menu.querySelector(".top-menu-trigger");
+      var panel = menu.querySelector(".top-menu-panel");
+      trigger.setAttribute("aria-expanded", "false");
+      panel.hidden = true;
+      if (options && options.restoreFocus) trigger.focus();
+    });
+  }
+  function openTopMenu(menu, focusPosition) {
+    closeTopMenus();
+    var trigger = menu.querySelector(".top-menu-trigger");
+    var panel = menu.querySelector(".top-menu-panel");
+    menu.classList.add("is-open");
+    trigger.setAttribute("aria-expanded", "true");
+    panel.hidden = false;
+    if (focusPosition) {
+      var items = Array.from(panel.querySelectorAll('[role="menuitem"]'));
+      var item = focusPosition === "last" ? items[items.length - 1] : items[0];
+      if (item) item.focus();
+    }
+  }
+  function bindTopNavigation() {
+    document.querySelectorAll(".top-menu").forEach(function (menu) {
+      var trigger = menu.querySelector(".top-menu-trigger");
+      var panel = menu.querySelector(".top-menu-panel");
+      trigger.addEventListener("click", function () {
+        if (menu.classList.contains("is-open")) closeTopMenus();
+        else openTopMenu(menu);
+      });
+      trigger.addEventListener("keydown", function (event) {
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          event.preventDefault();
+          openTopMenu(menu, event.key === "ArrowUp" ? "last" : "first");
+        }
+        if (event.key === "Escape") closeTopMenus({ restoreFocus: true });
+      });
+      panel.addEventListener("keydown", function (event) {
+        var items = Array.from(panel.querySelectorAll('[role="menuitem"]'));
+        var current = items.indexOf(document.activeElement);
+        if (event.key === "Escape") {
+          event.preventDefault();
+          closeTopMenus({ restoreFocus: true });
+          return;
+        }
+        if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+        event.preventDefault();
+        var next = current;
+        if (event.key === "Home") next = 0;
+        if (event.key === "End") next = items.length - 1;
+        if (event.key === "ArrowDown") next = (current + 1 + items.length) % items.length;
+        if (event.key === "ArrowUp") next = (current - 1 + items.length) % items.length;
+        if (items[next]) items[next].focus();
+      });
+    });
+    document.addEventListener("pointerdown", function (event) {
+      if (!event.target.closest(".top-menu")) closeTopMenus();
+    });
+  }
+  function syncTopNavigation(route) {
+    document.querySelectorAll(".top-overview, .top-menu-trigger").forEach(function (button) {
+      button.classList.remove("active");
+    });
+    document.querySelectorAll(".top-menu-panel [data-location]").forEach(function (button) {
+      var active = route && route.startsWith(button.dataset.location);
+      button.classList.toggle("active", Boolean(active));
+      if (active) {
+        button.setAttribute("aria-current", "page");
+        var trigger = button.closest(".top-menu").querySelector(".top-menu-trigger");
+        trigger.classList.add("active");
+      } else {
+        button.removeAttribute("aria-current");
+      }
+    });
+    if (!route) byId("top-links").querySelector(".top-overview").classList.add("active");
   }
   function routeLocation() {
     return decodeURIComponent(window.location.hash.replace(/^#/, ""));
@@ -171,6 +419,8 @@
   function renderProjectChrome() {
     var project = state.manifest.project;
     var entities = state.manifest.entities;
+    var databases = state.manifest.databases || [];
+    state.navigation = buildNavigationModel(project, entities, databases);
     byId("brand-mark").textContent = initials(project.name);
     byId("brand-name").textContent = project.name;
     byId("brand-target").textContent = "Xojo " + project.type + " API";
@@ -183,7 +433,7 @@
     byId("entity-count").textContent = entities.length + " documented entities";
     byId("member-count").textContent = entities.reduce(function (sum, entity) { return sum + entity.members; }, 0);
     byId("surface-count").textContent = entities.filter(function (entity) {
-      return ["Page", "Menu Bar", "Toolbar"].includes(entity.kind);
+      return navigationFor(entity).category === "surface";
     }).length;
 
     var frameworkTypes = Array.from(new Set(entities.map(function (entity) {
@@ -213,10 +463,17 @@
     }).join("");
 
     var grouped = new Map();
-    entities.forEach(function (entity) {
-      var group = kindGroup(entity.kind);
-      if (!grouped.has(group)) grouped.set(group, []);
-      grouped.get(group).push(entity);
+    state.navigation.filter(function (category) {
+      return category.id !== "database";
+    }).forEach(function (category) {
+      category.sections.forEach(function (section) {
+        var group = section.context ?
+          section.context + " / " + section.label :
+          section.label;
+        grouped.set(group, section.items.map(function (item) {
+          return item.entity;
+        }).filter(Boolean));
+      });
     });
     byId("project-navigation").innerHTML = Array.from(grouped.entries()).map(function (entry) {
       return '<section class="nav-group"><h2>' + escapeHTML(entry[0]) + "</h2>" +
@@ -225,7 +482,12 @@
             "<span>" + escapeHTML(entity.name) + "</span>" +
             (entity.members ? "<small>" + entity.members + "</small>" : "") + "</button>";
         }).join("") + "</section>";
-    }).join("");
+    }).join("") + (databases.length ? '<section class="nav-group nav-databases"><h2>Databases</h2>' +
+      databases.map(function (database) {
+        return '<button type="button" data-database-location="database/' +
+          escapeHTML(database.slug) + '/dictionary/"><span>' + escapeHTML(database.name) +
+          '</span><small>' + database.tables + '</small></button>';
+      }).join("") + "</section>" : "");
 
     var representative = entities.slice(0, 12);
     byId("recent-entities").innerHTML = representative.map(function (entity) {
@@ -242,12 +504,7 @@
         "<b>" + entry[1].length + "</b></button>";
     }).join("");
 
-    var topEntities = entities.slice(0, 2);
-    byId("top-links").innerHTML = '<button type="button" data-home>Overview</button>' +
-      topEntities.map(function (entity) {
-        return '<button type="button" data-location="' + escapeHTML(entity.location) + '">' +
-          escapeHTML(entity.name) + "</button>";
-      }).join("");
+    renderTopNavigation(state.navigation);
 
     byId("action-links").innerHTML = entities.slice(0, 2).map(function (entity, index) {
       return '<button type="button" class="' + (index === 0 ? "action-light" : "action-quiet") +
@@ -256,16 +513,31 @@
     byId("open-first-entity").textContent = entities[0] ? "Open " + entities[0].name : "Open entity";
 
     document.querySelectorAll("[data-location]").forEach(function (button) {
-      button.addEventListener("click", function () { setRoute(button.dataset.location); });
+      button.addEventListener("click", function () {
+        closeTopMenus();
+        setRoute(button.dataset.location);
+      });
     });
     document.querySelectorAll("[data-home]").forEach(function (button) {
-      button.addEventListener("click", function () { setRoute(null); });
+      button.addEventListener("click", function () {
+        closeTopMenus();
+        setRoute(null);
+      });
     });
+    document.querySelectorAll("[data-database-location]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        closeTopMenus();
+        setRoute(button.dataset.databaseLocation);
+      });
+    });
+    bindTopNavigation();
   }
 
   function renderStories() {
     var candidates = state.documents.filter(function (documentEntry) {
-      return documentEntry.location.includes("#") && /<pre><code/.test(documentEntry.text || "");
+      return !documentEntry.location.startsWith("database/") &&
+        documentEntry.location.includes("#") &&
+        /<pre><code/.test(documentEntry.text || "");
     }).slice(0, 3);
     byId("source-stories").innerHTML = candidates.map(function (entry) {
       var codeMatch = (entry.text || "").match(/<pre><code[^>]*>([\s\S]*?)<\/code><\/pre>/);
@@ -279,6 +551,7 @@
   function renderOverview() {
     byId("overview-view").hidden = false;
     byId("entity-view").hidden = true;
+    window.XojoDatabaseDocs.hide();
     document.querySelectorAll(".nav-group button").forEach(function (button) {
       button.classList.remove("active");
     });
@@ -293,6 +566,7 @@
     });
     byId("overview-view").hidden = true;
     byId("entity-view").hidden = false;
+    window.XojoDatabaseDocs.hide();
     byId("entity-kind").textContent = entity.kind + " / " + entity.superName;
     byId("entity-name").textContent = entity.name;
     byId("entity-members").textContent = entity.members;
@@ -343,6 +617,8 @@
 
   function renderRoute() {
     var route = routeLocation();
+    syncTopNavigation(route);
+    if (window.XojoDatabaseDocs.renderRoute(route)) return;
     var entity = entityForRoute(route);
     if (!entity) {
       renderOverview();
@@ -355,7 +631,10 @@
   function highlight(container) {
     if (!container || !window.Prism) return;
     container.querySelectorAll("pre code").forEach(function (code) {
-      code.classList.add("language-xojo");
+      var hasLanguage = Array.from(code.classList).some(function (className) {
+        return className.startsWith("language-");
+      });
+      if (!hasLanguage) code.classList.add("language-xojo");
     });
     window.Prism.highlightAllUnder(container);
   }
@@ -370,11 +649,18 @@
           return (entry.title + " " + documentText(entry)).toLowerCase().includes(needle);
         });
     }).slice(0, 9);
-    byId("search-results").innerHTML = entities.length ? entities.map(function (entity) {
+    var databaseResults = window.XojoDatabaseDocs.search(query).slice(0, Math.max(0, 9 - entities.length));
+    var resultsHTML = entities.map(function (entity) {
       return '<button type="button" data-search-location="' + escapeHTML(entity.location) + '"><span><strong>' +
         escapeHTML(entity.name) + "</strong><small>" + escapeHTML(entity.kind) + " · inherits " +
         escapeHTML(entity.superName) + "</small></span><b>Open</b></button>";
-    }).join("") : "<p>No API entities match “" + escapeHTML(query) + "”.</p>";
+    }).join("") + databaseResults.map(function (result) {
+      return '<button type="button" data-search-location="' + escapeHTML(result.location) +
+        '"><span><strong>' + escapeHTML(result.title) + "</strong><small>" +
+        escapeHTML(result.detail) + "</small></span><b>Open</b></button>";
+    }).join("");
+    byId("search-results").innerHTML = resultsHTML ||
+      "<p>No API or database documentation matches “" + escapeHTML(query) + "”.</p>";
     byId("search-results").querySelectorAll("[data-search-location]").forEach(function (button) {
       button.addEventListener("click", function () {
         closeSearch();
@@ -492,18 +778,33 @@
         event.preventDefault();
         openSearch();
       }
-      if (event.key === "Escape") closeSearch();
+      if (event.key === "Escape") {
+        closeSearch();
+        closeTopMenus();
+      }
     });
     window.addEventListener("hashchange", renderRoute);
     window.addEventListener("popstate", renderRoute);
   }
 
   Promise.all([
-    fetch(base + "/data/project.json").then(function (response) { return response.json(); }),
-    fetch(base + "/data/documents.json").then(function (response) { return response.json(); })
+    fetch(versioned(base + "/data/project.json")).then(function (response) { return response.json(); }),
+    fetch(versioned(base + "/data/documents.json")).then(function (response) { return response.json(); }),
+    fetch(versioned(base + "/data/databases.json")).then(function (response) { return response.json(); })
+      .catch(function () { return { databases: [] }; })
   ]).then(function (results) {
     state.manifest = results[0];
     state.documents = results[1].docs || [];
+    state.databases = results[2].databases || [];
+    window.XojoDatabaseDocs.init({
+      base: base,
+      assetVersion: assetVersion,
+      databases: state.databases,
+      escapeHTML: escapeHTML,
+      highlight: highlight,
+      project: state.manifest.project,
+      setRoute: setRoute
+    });
     renderProjectChrome();
     renderStories();
     bindShell();

@@ -64,7 +64,8 @@ def on_page_content(output: str, page, **kwargs):
         level = int(heading.group(1))
         end = len(output)
         for candidate in section_headings[index + 1:]:
-            if int(candidate.group(1)) <= level:
+            candidate_level = int(candidate.group(1))
+            if level == 2 or candidate_level <= level:
                 end = candidate.start()
                 break
         _documents.append(

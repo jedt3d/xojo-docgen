@@ -157,10 +157,13 @@ var knownItemTypes = map[string]bool{
 	"Library":             true,
 	"MenuBar":             true,
 	"DesktopWindow":       true,
+	"DesktopContainer":    true,
 	"DesktopToolbar":      true,
+	"Toolbar":             true,
 	"Window":              true,
 	"WebSession":          true,
 	"WebView":             true,
+	"WebContainer":        true,
 	"MobileScreen":        true,
 	"MobileContainer":     true,
 	"iOSLayout":           true,
@@ -185,7 +188,8 @@ func kindFor(itemType string) ContainerKind {
 		return KindInterface
 	case "WebSession":
 		return KindWebSession
-	case "WebView", "Window", "DesktopWindow", "MobileScreen", "MobileContainer",
+	case "WebView", "WebContainer", "Window", "DesktopWindow", "DesktopContainer",
+		"MobileScreen", "MobileContainer",
 		"iOSLayout", "iOSContainerControl":
 		return KindPage
 	case "MenuBar":

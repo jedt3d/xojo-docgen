@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#ffffff">
     <title>{{ config.site_name }}</title>
-    <link rel="stylesheet" href="{{ base_url }}/stylesheets/primary-color.css">
-    <link rel="stylesheet" href="{{ base_url }}/stylesheets/editorial.css">
+    <link rel="stylesheet" href="{{ base_url }}/stylesheets/primary-color.css?v={{ config.extra.asset_version }}">
+    <link rel="stylesheet" href="{{ base_url }}/stylesheets/editorial.css?v={{ config.extra.asset_version }}">
+    <link rel="stylesheet" href="{{ base_url }}/vendor/antv-x6-2.19.2.css?v={{ config.extra.asset_version }}">
   </head>
   <body>
     <main class="site-shell" id="site-shell">
@@ -150,6 +151,23 @@
             </aside>
           </div>
         </article>
+
+        <article class="database-reader" id="database-view" hidden>
+          <button class="back-link" id="database-back-button" type="button">Back to overview</button>
+          <header class="database-header">
+            <div>
+              <p id="database-kind">SQLite database</p>
+              <h1 id="database-name">Database</h1>
+              <span id="database-source"></span>
+            </div>
+            <dl id="database-stats"></dl>
+          </header>
+          <nav class="database-tabs" id="database-tabs" aria-label="Database documentation">
+            <button type="button" data-database-tab="dictionary">Data dictionary</button>
+            <button type="button" data-database-tab="diagram">ER diagram</button>
+          </nav>
+          <section id="database-content" aria-live="polite"></section>
+        </article>
       </div>
 
       <div class="search-backdrop" id="search-backdrop" role="presentation" hidden>
@@ -164,9 +182,13 @@
       </div>
     </main>
 
-    <script>window.__XOJO_DOCGEN_BASE__ = "{{ base_url }}";</script>
-    <script src="{{ base_url }}/javascripts/prism.js"></script>
-    <script src="{{ base_url }}/javascripts/xojo.prism.js"></script>
-    <script src="{{ base_url }}/javascripts/editorial.js"></script>
+    <script>
+      window.__XOJO_DOCGEN_BASE__ = "{{ base_url }}";
+      window.__XOJO_DOCGEN_ASSET_VERSION__ = "{{ config.extra.asset_version }}";
+    </script>
+    <script src="{{ base_url }}/javascripts/prism.js?v={{ config.extra.asset_version }}"></script>
+    <script src="{{ base_url }}/javascripts/xojo.prism.js?v={{ config.extra.asset_version }}"></script>
+    <script src="{{ base_url }}/javascripts/database.js?v={{ config.extra.asset_version }}"></script>
+    <script src="{{ base_url }}/javascripts/editorial.js?v={{ config.extra.asset_version }}"></script>
   </body>
 </html>

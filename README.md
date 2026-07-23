@@ -4,7 +4,7 @@
 
 `xojo-docgen` parses Xojo text-project files (`.xojo_project` + `.xojo_code` / `.xojo_window` / `.xojo_menu` / `.xojo_toolbar`), extracts every documentable entity, and emits clean Markdown — then renders each project into a standalone, deploy-ready static site using an editable editorial Xojo template.
 
-- **Code as the display focus.** The `#tag` structural layer is used only to extract entities; what you see in the docs is the real VB/Xojo source (signatures + collapsible full method bodies).
+- **Code as the display focus.** The `#tag` structural layer is used only to extract entities; methods display their complete VB/Xojo source directly in one syntax-highlighted block.
 - **Per-project sites.** Each Xojo project becomes its own independent static site, ready to publish to GitHub Pages or any static host.
 - **Multi-project.** Point the tool at a folder of projects; it generates a separate doc set for each. Built and tested against all five Xojo project types (Console, Desktop, iOS, Mobile/Android, Web).
 - **Official-docs linking.** Type references (`As WebButton`, `As Integer`, `Inherits SQLiteDatabase`) auto-link to the official Xojo documentation via the IDE's shipped `objects.inv` inventory.
@@ -12,6 +12,7 @@
 - **Theme without recompiling.** The default reader is a normal template directory. `-template-dir` selects a complete per-project template, while `-primary-color R,G,B` generates its coordinated palette.
 - **Syntax highlighting.** Full Xojo grammar via Prism.js, preserved independently of the selected primary color.
 - **Source review.** Every method body remains readable in horizontally scrollable, syntax-highlighted source blocks.
+- **Database documentation.** An explicit `-database` input adds a searchable SQLite data dictionary and an interactive AntV X6 ER diagram without reading application row data.
 
 ---
 
@@ -38,6 +39,10 @@ go build -o xojo-docgen .
 # Or generate one project while omitting dependency folders from its API
 ./xojo-docgen -single "../../Long Pepper.xojo_project" \
   -exclude-folder "dependencies,vendor" -out ../../docs/api -v
+
+# Add a project-relative SQLite schema (repeat -database for more than one)
+./xojo-docgen -single "../../dependencies/XjMVVM/mvvm.xojo_project" \
+  -database data/notes.sqlite -out ../../docs/api -v
 
 # Generate the same editorial theme from another primary RGB value
 ./xojo-docgen -root ../sample_project -out ../../docs/api \
@@ -73,16 +78,26 @@ directory structure, including `overrides/main.html`,
 `--xojo-primary-*` CSS variables when custom styles should respond to
 `-primary-color`.
 
+`-database` is also limited to `-single`. It accepts a SQLite file path relative
+to the selected `.xojo_project` (or an absolute path) and may be repeated.
+DocGen opens the file in read-only/query-only mode and extracts schema metadata,
+not row data. Declared foreign keys are rendered as solid ER edges. A narrowly
+scoped naming heuristic may add dashed **suggested** edges when a non-primary
+column uniquely matches one compatible target table and its single primary key
+(for example `user_id`, `CustomerID`, `InvoiceNo`, or `ProductCode`);
+suggestions are never presented as database constraints. See
+[`docgen/DATABASE_DOCUMENTATION.md`](docgen/DATABASE_DOCUMENTATION.md).
+
 ## How it works
 
 ```
-.xojo_project + .xojo_code ──► xojo-docgen (Go) ──► docs/api/<slug>/*.md
-                                                         │
-                                                         ▼
-                                          mkdocs build (per project)
-                                                         │
-                                                         ▼
-                                     docs/api-published/<slug>/  ← standalone site
+.xojo_project + source + optional SQLite ──► xojo-docgen ──► docs/api/<slug>/content/
+                                                                    │
+                                                                    ▼
+                                                     mkdocs build (per project)
+                                                                    │
+                                                                    ▼
+                                                docs/api-published/<slug>/
 ```
 
 Each published site is a complete static site — its own `index.html`, Landmark document payload, client search, `.nojekyll`, and assets. Deploy one to GitHub Pages or drop it on any static host.
@@ -100,6 +115,9 @@ Each published site is a complete static site — its own `index.html`, Landmark
 | **mkdocs-literate-nav** by Tim Schwenke | MIT | Auto-builds the nav from the file tree | [github.com/oprypin/mkdocs-literate-nav](https://github.com/oprypin/mkdocs-literate-nav) |
 | **Prism.js** | Lea Verou & James DiGioia | MIT | Client-side syntax highlighting | [prismjs.com](https://prismjs.com) |
 | **Xojo Prism grammar** | Worajedt Sitthidumrong | MIT | The Xojo language definition for Prism | [github.com/jedt3d/xojo-syntax-highlight-for-web](https://github.com/jedt3d/xojo-syntax-highlight-for-web) |
+| **modernc.org/sqlite** | modernc.org contributors | BSD-3-Clause | Pure-Go, read-only SQLite schema inspection | [pkg.go.dev/modernc.org/sqlite](https://pkg.go.dev/modernc.org/sqlite) |
+| **AntV X6** | AntV contributors | MIT | Interactive ER diagram canvas | [x6.antv.antgroup.com](https://x6.antv.antgroup.com/) |
+| **Dagre** | Dagre contributors | MIT | Directed graph layout for ER diagrams | [github.com/dagrejs/dagre](https://github.com/dagrejs/dagre) |
 
 The default Xojo-inspired primary color and documentation link map (`objects.inv`) are properties of Xojo, Inc.
 
@@ -115,10 +133,12 @@ Copyright © 2026 Worajedt Sitthidumrong. Licensed under the **MIT License** —
 
 The "Eddie's Electronics" sample applications under `sample_project/` are **© Xojo, Inc.** They are included only as test fixtures and are **not** covered by the MIT license. See [sample_project/NOTICE](sample_project/NOTICE) and [xojo.com/license](https://www.xojo.com/license/).
 
-### Vendored third-party assets (`docgen/templates/default/javascripts/`)
+### Vendored third-party assets (`docgen/templates/default/`)
 
 - `prism.js` — © PrismJS contributors, MIT License ([prismjs.com](https://prismjs.com))
 - `xojo.prism.js` — © Worajedt Sitthidumrong, MIT License
+- `vendor/antv-x6-2.19.2.*` — © AntV contributors, MIT License
+- `vendor/dagre-0.8.5.min.js` — © Dagre contributors, MIT License
 
 ---
 
@@ -144,12 +164,15 @@ xojo-docgen/
 │   ├── template.go            resolve, validate, and copy templates
 │   ├── primary_color.go       RGB parsing + derived palette generation
 │   ├── editorial_manifest.go  project/entity payload for the editorial reader
+│   ├── database.go            read-only SQLite schema inspection
+│   ├── database_render.go     database JSON + Markdown output
+│   ├── DATABASE_DOCUMENTATION.md  database documentation design
 │   ├── templates/default/     built-in editorial template
 │   │   ├── mkdocs.base.yml
 │   │   ├── assets/
 │   │   ├── hooks/             rendered-document payload hook
 │   │   ├── overrides/         complete EEWeb publishing shell
-│   │   ├── javascripts/       reader runtime + Prism.js Xojo grammar
+│   │   ├── javascripts/       reader runtime + database viewer + Prism grammar
 │   │   └── stylesheets/       generated palette + canonical EEWeb CSS
 │   └── README.md              extractor-specific docs
 └── sample_project/            Xojo sample projects (© Xojo, Inc.) — test fixtures
@@ -174,3 +197,6 @@ xojo-docgen/
 
 ## Contributing
 
+Pull requests welcome. The extractor is pure Go; SQLite schema inspection uses
+the pure-Go `modernc.org/sqlite` driver. The design is documented in
+[`docgen/DATABASE_DOCUMENTATION.md`](docgen/DATABASE_DOCUMENTATION.md).

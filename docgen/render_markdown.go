@@ -25,16 +25,23 @@ func renderMarkdown(p *Project, outRoot string, lm *LinkMap, includePrivate bool
 	if err := copyTemplateDir(templateDir, outDir); err != nil {
 		return fmt.Errorf("copy template: %w", err)
 	}
-	if err := writePrimaryColorCSS(outDir, primaryColor); err != nil {
+	sourceDir := filepath.Join(outDir, "content")
+	if err := prepareMkDocsSourceDir(outDir, sourceDir); err != nil {
+		return fmt.Errorf("prepare MkDocs source directory: %w", err)
+	}
+	if err := writePrimaryColorCSS(sourceDir, primaryColor); err != nil {
 		return fmt.Errorf("write primary color palette: %w", err)
 	}
 
 	// Landing page.
-	if err := renderLandingPage(p, outDir, lm); err != nil {
+	if err := renderLandingPage(p, sourceDir, lm); err != nil {
 		return err
 	}
-	if err := renderEditorialManifest(p, outDir); err != nil {
+	if err := renderEditorialManifest(p, sourceDir); err != nil {
 		return fmt.Errorf("write editorial project manifest: %w", err)
+	}
+	if err := renderDatabaseDocumentation(p, sourceDir); err != nil {
+		return fmt.Errorf("write database documentation: %w", err)
 	}
 
 	// Per-container pages.
@@ -48,14 +55,35 @@ func renderMarkdown(p *Project, outRoot string, lm *LinkMap, includePrivate bool
 		if !shouldDocument(c.Kind) {
 			continue
 		}
-		if err := renderContainerPage(c, outDir, rc); err != nil {
+		if err := renderContainerPage(c, sourceDir, rc); err != nil {
 			warnf("%s: %s: %v", p.Slug, c.FQN, err)
 		}
 	}
 
 	// Per-project mkdocs.yml.
-	if err := renderProjectMkdocsYml(p, outDir); err != nil {
+	if err := renderProjectMkdocsYml(p, outDir, sourceDir); err != nil {
 		return err
+	}
+	return nil
+}
+
+// prepareMkDocsSourceDir keeps renderer configuration and template overrides
+// beside mkdocs.yml while moving public source assets into a child directory.
+// MkDocs 1.6+ rejects docs_dir "." because it would treat the configuration
+// file itself as publishable documentation.
+func prepareMkDocsSourceDir(projectDir string, sourceDir string) error {
+	if err := os.MkdirAll(sourceDir, 0o755); err != nil {
+		return err
+	}
+	for _, directory := range []string{"assets", "javascripts", "stylesheets", "vendor"} {
+		source := filepath.Join(projectDir, directory)
+		destination := filepath.Join(sourceDir, directory)
+		if !fileExists(source) {
+			continue
+		}
+		if err := os.Rename(source, destination); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -533,13 +561,10 @@ func renderMethod(b *strings.Builder, m *Method, rc *renderCtx) {
 	if m.IsDeprecated {
 		writeDeprecated(b, m.DeprecMsg)
 	}
-	// Signature with linked types, rendered as HTML so <a> links work.
-	sig := linkifySignatureHTML(m.Signature, rc)
-	writeCodeBlock(b, sig)
 	if d := memberDocs(m); d != "" {
 		b.WriteString(d + "\n\n")
 	}
-	writeSourceDetails(b, m.Source)
+	writeSourceBlock(b, m.Source)
 }
 
 func renderProperty(b *strings.Builder, p *Property, rc *renderCtx) {
@@ -917,6 +942,16 @@ func htmlEscape(s string) string {
 // working links, unlike fenced code blocks which would show [text](url) raw.
 func writeCodeBlock(b *strings.Builder, content string) {
 	fmt.Fprintf(b, "<pre><code>%s</code></pre>\n\n", content)
+}
+
+// writeSourceBlock emits full VB/Xojo source directly without a disclosure
+// wrapper. Source is HTML-escaped here because Prism reads textContent.
+func writeSourceBlock(b *strings.Builder, source string) {
+	source = strings.TrimSpace(source)
+	if source == "" {
+		return
+	}
+	fmt.Fprintf(b, "<pre><code class=\"language-xojo\">%s</code></pre>\n\n", htmlEscape(source))
 }
 
 // writeSourceDetails emits a collapsible "Source" block with the full VB/Xojo

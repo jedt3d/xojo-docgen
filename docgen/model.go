@@ -38,6 +38,7 @@ type Project struct {
 	RootItems     []*Container          // top-level items in tree form
 	ItemsByID     map[uint64]*Container // ID -> container (manifest lookup)
 	AllContainers []*Container          // flat list of all containers (for rendering)
+	Databases     []DatabaseDocument    // explicitly requested database schemas (metadata only)
 	Notes         string                // project-level note (if any)
 }
 
